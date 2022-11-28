@@ -1,0 +1,2774 @@
+{
+	"$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"factoryName": {
+			"type": "string",
+			"metadata": "Data Factory name",
+			"defaultValue": "df-ld-internal"
+		}
+	},
+	"variables": {
+		"factoryId": "[concat('Microsoft.DataFactory/factories/', parameters('factoryName'))]"
+	},
+	"resources": [
+		{
+			"name": "[concat(parameters('factoryName'), '/InvoiceLinesJuly')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "Databricks_SQL",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [],
+				"typeProperties": {
+					"schema": "Clients",
+					"table": "InvoiceLinesJuly"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Invoicelines_Info_GR_Aug22')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "DLinternal",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileName": "Invoicelines_Info_GR_Aug22.txt",
+						"folderPath": "Trigger_marketing/Input",
+						"fileSystem": "ikea"
+					},
+					"columnDelimiter": "\t",
+					"escapeChar": "\\",
+					"firstRowAsHeader": true,
+					"quoteChar": "\""
+				},
+				"schema": [
+					{
+						"name": "InvoiceId",
+						"type": "String"
+					},
+					{
+						"name": "CustomerId",
+						"type": "String"
+					},
+					{
+						"name": "ProductHFB_Code",
+						"type": "String"
+					},
+					{
+						"name": "ProductPA_Code",
+						"type": "String"
+					},
+					{
+						"name": "ProductDescription",
+						"type": "String"
+					},
+					{
+						"name": "ProductPA",
+						"type": "String"
+					},
+					{
+						"name": "ProductHFB",
+						"type": "String"
+					},
+					{
+						"name": "ProductId",
+						"type": "String"
+					},
+					{
+						"name": "ProductNumber",
+						"type": "String"
+					},
+					{
+						"name": "ProductRangeArea",
+						"type": "String"
+					},
+					{
+						"name": "ProductRangeArea_Code",
+						"type": "String"
+					},
+					{
+						"name": "Invoice_Amount",
+						"type": "String"
+					},
+					{
+						"name": "Invoice_items",
+						"type": "String"
+					},
+					{
+						"name": "Transaction_Date",
+						"type": "String"
+					},
+					{
+						"name": "Transaction_Month",
+						"type": "String"
+					},
+					{
+						"name": "HasRedeem",
+						"type": "String"
+					}
+				]
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/SQL_sink')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "Databricks_SQL",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"sink_table": {
+						"type": "string"
+					}
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [],
+				"typeProperties": {
+					"schema": "dbo",
+					"table": {
+						"value": "@dataset().sink_table",
+						"type": "Expression"
+					}
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/SQL_source')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "Databricks_SQL",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"source_table": {
+						"type": "string",
+						"defaultValue": "bank_transactions_base"
+					}
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [],
+				"typeProperties": {
+					"schema": "dbo",
+					"table": {
+						"value": "@dataset().source_table",
+						"type": "Expression"
+					}
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Scored_data')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "DLinternal",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileName": "Scored_dataset(Responders_Lemesos).csv",
+						"folderPath": "Pafos_Model/Scored_Data",
+						"fileSystem": "test"
+					},
+					"columnDelimiter": ",",
+					"escapeChar": "\\",
+					"firstRowAsHeader": true,
+					"quoteChar": "\""
+				},
+				"schema": [
+					{
+						"name": "CustomerID",
+						"type": "String"
+					},
+					{
+						"name": "CIFs_Spending_09_24M",
+						"type": "String"
+					},
+					{
+						"name": "CIFs_Spending_07_24M",
+						"type": "String"
+					},
+					{
+						"name": "CIFs_Spending_14_12M",
+						"type": "String"
+					},
+					{
+						"name": "CIFs_Spending_95_12M",
+						"type": "String"
+					},
+					{
+						"name": "CIFs_Spending_96_12M",
+						"type": "String"
+					},
+					{
+						"name": "Activity_History_String_4S",
+						"type": "String"
+					},
+					{
+						"name": "RFM",
+						"type": "String"
+					},
+					{
+						"name": "Loyalty_PointBalance_Range",
+						"type": "String"
+					},
+					{
+						"name": "F_Rank_24M",
+						"type": "String"
+					},
+					{
+						"name": "Spending_Customer_Status",
+						"type": "String"
+					},
+					{
+						"name": "_5_DHMOS_Desc_EN",
+						"type": "String"
+					},
+					{
+						"name": "HasEmail",
+						"type": "String"
+					},
+					{
+						"name": "AgeRange",
+						"type": "String"
+					},
+					{
+						"name": "Gender",
+						"type": "String"
+					},
+					{
+						"name": "Children_Held",
+						"type": "String"
+					},
+					{
+						"name": "Responders_Lemesos_est",
+						"type": "String"
+					},
+					{
+						"name": "ventile",
+						"type": "String"
+					}
+				]
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Scoring_data_raw')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "DLinternal",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileName": "Scoring_data_raw.txt",
+						"folderPath": "Pafos_Model/Scoring_Data",
+						"fileSystem": "test"
+					},
+					"columnDelimiter": "\t",
+					"escapeChar": "\\",
+					"firstRowAsHeader": true,
+					"quoteChar": "\""
+				},
+				"schema": [
+					{
+						"name": "CustomerId",
+						"type": "String"
+					},
+					{
+						"name": "Loyalty_PointBalance_Range",
+						"type": "String"
+					},
+					{
+						"name": "Loyalty_Registration_Year",
+						"type": "String"
+					},
+					{
+						"name": "Loyalty_Preferred_Store",
+						"type": "String"
+					},
+					{
+						"name": "Customer_Random_Digit",
+						"type": "String"
+					},
+					{
+						"name": "Customer_Random_Digit2",
+						"type": "String"
+					},
+					{
+						"name": "Gender",
+						"type": "String"
+					},
+					{
+						"name": "AgeRange",
+						"type": "String"
+					},
+					{
+						"name": "AgeRange2",
+						"type": "String"
+					},
+					{
+						"name": "HasEmail",
+						"type": "String"
+					},
+					{
+						"name": "Closest_Distance_range",
+						"type": "String"
+					},
+					{
+						"name": "Postcode",
+						"type": "String"
+					},
+					{
+						"name": "_4_PERIFER_ENOTHTA_Desc_EN",
+						"type": "String"
+					},
+					{
+						"name": "_5_DHMOS_Desc_EN",
+						"type": "String"
+					},
+					{
+						"name": "Children_Held",
+						"type": "String"
+					},
+					{
+						"name": "RFM",
+						"type": "String"
+					},
+					{
+						"name": "R_Rank_24M",
+						"type": "String"
+					},
+					{
+						"name": "F_Rank_24M",
+						"type": "String"
+					},
+					{
+						"name": "M_Rank_24M",
+						"type": "String"
+					},
+					{
+						"name": "Activity_History_String_8Q",
+						"type": "String"
+					},
+					{
+						"name": "Activity_History_String_4S",
+						"type": "String"
+					},
+					{
+						"name": "Spending_Customer_Status",
+						"type": "String"
+					},
+					{
+						"name": "Activity_History_String_3M",
+						"type": "String"
+					},
+					{
+						"name": "CIFs_Spending_12M",
+						"type": "String"
+					},
+					{
+						"name": "CIFs_Spending_01_12M",
+						"type": "String"
+					},
+					{
+						"name": "CIFs_Spending_02_12M",
+						"type": "String"
+					},
+					{
+						"name": "CIFs_Spending_03_12M",
+						"type": "String"
+					},
+					{
+						"name": "CIFs_Spending_04_12M",
+						"type": "String"
+					},
+					{
+						"name": "CIFs_Spending_05_12M",
+						"type": "String"
+					},
+					{
+						"name": "CIFs_Spending_06_12M",
+						"type": "String"
+					},
+					{
+						"name": "CIFs_Spending_07_12M",
+						"type": "String"
+					},
+					{
+						"name": "CIFs_Spending_08_12M",
+						"type": "String"
+					},
+					{
+						"name": "CIFs_Spending_09_12M",
+						"type": "String"
+					},
+					{
+						"name": "CIFs_Spending_10_12M",
+						"type": "String"
+					},
+					{
+						"name": "CIFs_Spending_11_12M",
+						"type": "String"
+					},
+					{
+						"name": "CIFs_Spending_12_12M",
+						"type": "String"
+					},
+					{
+						"name": "CIFs_Spending_13_12M",
+						"type": "String"
+					},
+					{
+						"name": "CIFs_Spending_14_12M",
+						"type": "String"
+					},
+					{
+						"name": "CIFs_Spending_15_12M",
+						"type": "String"
+					},
+					{
+						"name": "CIFs_Spending_16_12M",
+						"type": "String"
+					},
+					{
+						"name": "CIFs_Spending_17_12M",
+						"type": "String"
+					},
+					{
+						"name": "CIFs_Spending_18_12M",
+						"type": "String"
+					},
+					{
+						"name": "CIFs_Spending_19_12M",
+						"type": "String"
+					},
+					{
+						"name": "CIFs_Spending_20_12M",
+						"type": "String"
+					},
+					{
+						"name": "CIFs_Spending_92_12M",
+						"type": "String"
+					},
+					{
+						"name": "CIFs_Spending_94_12M",
+						"type": "String"
+					},
+					{
+						"name": "CIFs_Spending_95_12M",
+						"type": "String"
+					},
+					{
+						"name": "CIFs_Spending_96_12M",
+						"type": "String"
+					},
+					{
+						"name": "CIFs_Spending_24M",
+						"type": "String"
+					},
+					{
+						"name": "CIFs_Spending_01_24M",
+						"type": "String"
+					},
+					{
+						"name": "CIFs_Spending_02_24M",
+						"type": "String"
+					},
+					{
+						"name": "CIFs_Spending_03_24M",
+						"type": "String"
+					},
+					{
+						"name": "CIFs_Spending_04_24M",
+						"type": "String"
+					},
+					{
+						"name": "CIFs_Spending_05_24M",
+						"type": "String"
+					},
+					{
+						"name": "CIFs_Spending_06_24M",
+						"type": "String"
+					},
+					{
+						"name": "CIFs_Spending_07_24M",
+						"type": "String"
+					},
+					{
+						"name": "CIFs_Spending_08_24M",
+						"type": "String"
+					},
+					{
+						"name": "CIFs_Spending_09_24M",
+						"type": "String"
+					},
+					{
+						"name": "CIFs_Spending_10_24M",
+						"type": "String"
+					},
+					{
+						"name": "CIFs_Spending_11_24M",
+						"type": "String"
+					},
+					{
+						"name": "CIFs_Spending_12_24M",
+						"type": "String"
+					},
+					{
+						"name": "CIFs_Spending_13_24M",
+						"type": "String"
+					},
+					{
+						"name": "CIFs_Spending_14_24M",
+						"type": "String"
+					},
+					{
+						"name": "CIFs_Spending_15_24M",
+						"type": "String"
+					},
+					{
+						"name": "CIFs_Spending_16_24M",
+						"type": "String"
+					},
+					{
+						"name": "CIFs_Spending_17_24M",
+						"type": "String"
+					},
+					{
+						"name": "CIFs_Spending_18_24M",
+						"type": "String"
+					},
+					{
+						"name": "CIFs_Spending_19_24M",
+						"type": "String"
+					},
+					{
+						"name": "CIFs_Spending_20_24M",
+						"type": "String"
+					},
+					{
+						"name": "CIFs_Spending_92_24M",
+						"type": "String"
+					},
+					{
+						"name": "CIFs_Spending_96_24M",
+						"type": "String"
+					},
+					{
+						"name": "_5_PurPower_per_Household_Index",
+						"type": "String"
+					},
+					{
+						"name": "_2_DIOIKHSEIS_Desc_EN",
+						"type": "String"
+					},
+					{
+						"name": "_3_PERIFERIA_Desc_EN",
+						"type": "String"
+					},
+					{
+						"name": "R_Rank_prior24M",
+						"type": "String"
+					},
+					{
+						"name": "F_Rank_prior24M",
+						"type": "String"
+					},
+					{
+						"name": "M_Rank_prior24M",
+						"type": "String"
+					},
+					{
+						"name": "rfm_prior24M",
+						"type": "String"
+					},
+					{
+						"name": "Children_Held2",
+						"type": "String"
+					},
+					{
+						"name": "Nomos",
+						"type": "String"
+					},
+					{
+						"name": "Description_Mixed",
+						"type": "String"
+					},
+					{
+						"name": "Sem_on_Books",
+						"type": "String"
+					},
+					{
+						"name": "Invoice_txns_24M_range",
+						"type": "String"
+					},
+					{
+						"name": "Invoice_txns_01_24M_range",
+						"type": "String"
+					},
+					{
+						"name": "Invoice_txns_02_24M_range",
+						"type": "String"
+					},
+					{
+						"name": "Invoice_txns_03_24M_range",
+						"type": "String"
+					},
+					{
+						"name": "Invoice_txns_04_24M_range",
+						"type": "String"
+					},
+					{
+						"name": "Invoice_txns_05_24M_range",
+						"type": "String"
+					},
+					{
+						"name": "Invoice_txns_06_24M_range",
+						"type": "String"
+					},
+					{
+						"name": "Invoice_txns_07_24M_range",
+						"type": "String"
+					},
+					{
+						"name": "Invoice_txns_08_24M_range",
+						"type": "String"
+					},
+					{
+						"name": "Invoice_txns_09_24M_range",
+						"type": "String"
+					},
+					{
+						"name": "Invoice_txns_10_24M_range",
+						"type": "String"
+					},
+					{
+						"name": "Invoice_txns_11_24M_range",
+						"type": "String"
+					},
+					{
+						"name": "Invoice_txns_12_24M_range",
+						"type": "String"
+					},
+					{
+						"name": "Invoice_txns_13_24M_range",
+						"type": "String"
+					},
+					{
+						"name": "Invoice_txns_14_24M_range",
+						"type": "String"
+					},
+					{
+						"name": "Invoice_txns_15_24M_range",
+						"type": "String"
+					},
+					{
+						"name": "Invoice_txns_16_24M_range",
+						"type": "String"
+					},
+					{
+						"name": "Invoice_txns_17_24M_range",
+						"type": "String"
+					},
+					{
+						"name": "Invoice_txns_18_24M_range",
+						"type": "String"
+					},
+					{
+						"name": "Invoice_txns_19_24M_range",
+						"type": "String"
+					},
+					{
+						"name": "Invoice_txns_20_24M_range",
+						"type": "String"
+					},
+					{
+						"name": "Invoice_txns_92_24M_range",
+						"type": "String"
+					},
+					{
+						"name": "Invoice_txns_96_24M_range",
+						"type": "String"
+					},
+					{
+						"name": "Invoice_txns_12M_range",
+						"type": "String"
+					},
+					{
+						"name": "Invoice_txns_01_12M_range",
+						"type": "String"
+					},
+					{
+						"name": "Invoice_txns_02_12M_range",
+						"type": "String"
+					},
+					{
+						"name": "Invoice_txns_03_12M_range",
+						"type": "String"
+					},
+					{
+						"name": "Invoice_txns_04_12M_range",
+						"type": "String"
+					},
+					{
+						"name": "Invoice_txns_05_12M_range",
+						"type": "String"
+					},
+					{
+						"name": "Invoice_txns_06_12M_range",
+						"type": "String"
+					},
+					{
+						"name": "Invoice_txns_07_12M_range",
+						"type": "String"
+					},
+					{
+						"name": "Invoice_txns_08_12M_range",
+						"type": "String"
+					},
+					{
+						"name": "Invoice_txns_09_12M_range",
+						"type": "String"
+					},
+					{
+						"name": "Invoice_txns_10_12M_range",
+						"type": "String"
+					},
+					{
+						"name": "Invoice_txns_11_12M_range",
+						"type": "String"
+					},
+					{
+						"name": "Invoice_txns_12_12M_range",
+						"type": "String"
+					},
+					{
+						"name": "Invoice_txns_13_12M_range",
+						"type": "String"
+					},
+					{
+						"name": "Invoice_txns_14_12M_range",
+						"type": "String"
+					},
+					{
+						"name": "Invoice_txns_15_12M_range",
+						"type": "String"
+					},
+					{
+						"name": "Invoice_txns_16_12M_range",
+						"type": "String"
+					},
+					{
+						"name": "Invoice_txns_17_12M_range",
+						"type": "String"
+					},
+					{
+						"name": "Invoice_txns_18_12M_range",
+						"type": "String"
+					},
+					{
+						"name": "Invoice_txns_19_12M_range",
+						"type": "String"
+					},
+					{
+						"name": "Invoice_txns_20_12M_range",
+						"type": "String"
+					},
+					{
+						"name": "Invoice_txns_92_12M_range",
+						"type": "String"
+					},
+					{
+						"name": "Invoice_txns_96_12M_range",
+						"type": "String"
+					},
+					{
+						"name": "Points_Redeemed_24M_range",
+						"type": "String"
+					},
+					{
+						"name": "Points_Earned_24M_range",
+						"type": "String"
+					},
+					{
+						"name": "Points_Earned_ever_range",
+						"type": "String"
+					},
+					{
+						"name": "Invoice_Amount_24M_range",
+						"type": "String"
+					},
+					{
+						"name": "Invoice_SDI_24M",
+						"type": "String"
+					},
+					{
+						"name": "Invoice_SDI_12M",
+						"type": "String"
+					},
+					{
+						"name": "CIFs",
+						"type": "String"
+					}
+				]
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Scoring_data_transformed')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "DLinternal",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileName": "Scoring_data_transformed.csv",
+						"folderPath": "Pafos_Model/Scoring_Data",
+						"fileSystem": "test"
+					},
+					"columnDelimiter": "\t",
+					"escapeChar": "\\",
+					"firstRowAsHeader": true,
+					"quoteChar": "\""
+				},
+				"schema": [
+					{
+						"name": "Loyalty_PointBalance_Range",
+						"type": "String"
+					},
+					{
+						"name": "Gender",
+						"type": "String"
+					},
+					{
+						"name": "AgeRange",
+						"type": "String"
+					},
+					{
+						"name": "HasEmail",
+						"type": "String"
+					},
+					{
+						"name": "_5_DHMOS_Desc_EN",
+						"type": "String"
+					},
+					{
+						"name": "Children_Held",
+						"type": "String"
+					},
+					{
+						"name": "RFM",
+						"type": "String"
+					},
+					{
+						"name": "F_Rank_24M",
+						"type": "String"
+					},
+					{
+						"name": "Activity_History_String_4S",
+						"type": "String"
+					},
+					{
+						"name": "CIFs_Spending_14_12M",
+						"type": "String"
+					},
+					{
+						"name": "CIFs_Spending_95_12M",
+						"type": "String"
+					},
+					{
+						"name": "CIFs_Spending_96_12M",
+						"type": "String"
+					},
+					{
+						"name": "CIFs_Spending_07_24M",
+						"type": "String"
+					},
+					{
+						"name": "Spending_Customer_Status",
+						"type": "String"
+					},
+					{
+						"name": "CIFs_Spending_09_24M",
+						"type": "String"
+					}
+				]
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/SourceDataset_n6c')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "DLinternal",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "Binary",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileName": "Training_data_raw.zip",
+						"folderPath": "Compressed",
+						"fileSystem": "test"
+					},
+					"compression": {
+						"type": "ZipDeflate"
+					}
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Training_data_raw')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "DLinternal",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileName": "Training_data_raw.txt",
+						"folderPath": "Pafos_Model/Training_data",
+						"fileSystem": "test"
+					},
+					"columnDelimiter": "\t",
+					"escapeChar": "\\",
+					"firstRowAsHeader": true,
+					"quoteChar": "\""
+				},
+				"schema": [
+					{
+						"name": "CustomerId",
+						"type": "String"
+					},
+					{
+						"name": "Loyalty_PointBalance_Range",
+						"type": "String"
+					},
+					{
+						"name": "Loyalty_Registration_Year",
+						"type": "String"
+					},
+					{
+						"name": "Loyalty_Preferred_Store",
+						"type": "String"
+					},
+					{
+						"name": "Customer_Random_Digit",
+						"type": "String"
+					},
+					{
+						"name": "Customer_Random_Digit2",
+						"type": "String"
+					},
+					{
+						"name": "Gender",
+						"type": "String"
+					},
+					{
+						"name": "AgeRange",
+						"type": "String"
+					},
+					{
+						"name": "AgeRange2",
+						"type": "String"
+					},
+					{
+						"name": "HasEmail",
+						"type": "String"
+					},
+					{
+						"name": "Closest_Distance_range",
+						"type": "String"
+					},
+					{
+						"name": "Postcode",
+						"type": "String"
+					},
+					{
+						"name": "_4_PERIFER_ENOTHTA_Desc_EN",
+						"type": "String"
+					},
+					{
+						"name": "_5_DHMOS_Desc_EN",
+						"type": "String"
+					},
+					{
+						"name": "Children_Held",
+						"type": "String"
+					},
+					{
+						"name": "RFM",
+						"type": "String"
+					},
+					{
+						"name": "R_Rank_24M",
+						"type": "String"
+					},
+					{
+						"name": "F_Rank_24M",
+						"type": "String"
+					},
+					{
+						"name": "M_Rank_24M",
+						"type": "String"
+					},
+					{
+						"name": "Activity_History_String_8Q",
+						"type": "String"
+					},
+					{
+						"name": "Activity_History_String_4S",
+						"type": "String"
+					},
+					{
+						"name": "Spending_Customer_Status",
+						"type": "String"
+					},
+					{
+						"name": "Activity_History_String_3M",
+						"type": "String"
+					},
+					{
+						"name": "CIFs_Spending_12M",
+						"type": "String"
+					},
+					{
+						"name": "CIFs_Spending_01_12M",
+						"type": "String"
+					},
+					{
+						"name": "CIFs_Spending_02_12M",
+						"type": "String"
+					},
+					{
+						"name": "CIFs_Spending_03_12M",
+						"type": "String"
+					},
+					{
+						"name": "CIFs_Spending_04_12M",
+						"type": "String"
+					},
+					{
+						"name": "CIFs_Spending_05_12M",
+						"type": "String"
+					},
+					{
+						"name": "CIFs_Spending_06_12M",
+						"type": "String"
+					},
+					{
+						"name": "CIFs_Spending_07_12M",
+						"type": "String"
+					},
+					{
+						"name": "CIFs_Spending_08_12M",
+						"type": "String"
+					},
+					{
+						"name": "CIFs_Spending_09_12M",
+						"type": "String"
+					},
+					{
+						"name": "CIFs_Spending_10_12M",
+						"type": "String"
+					},
+					{
+						"name": "CIFs_Spending_11_12M",
+						"type": "String"
+					},
+					{
+						"name": "CIFs_Spending_12_12M",
+						"type": "String"
+					},
+					{
+						"name": "CIFs_Spending_13_12M",
+						"type": "String"
+					},
+					{
+						"name": "CIFs_Spending_14_12M",
+						"type": "String"
+					},
+					{
+						"name": "CIFs_Spending_15_12M",
+						"type": "String"
+					},
+					{
+						"name": "CIFs_Spending_16_12M",
+						"type": "String"
+					},
+					{
+						"name": "CIFs_Spending_17_12M",
+						"type": "String"
+					},
+					{
+						"name": "CIFs_Spending_18_12M",
+						"type": "String"
+					},
+					{
+						"name": "CIFs_Spending_19_12M",
+						"type": "String"
+					},
+					{
+						"name": "CIFs_Spending_20_12M",
+						"type": "String"
+					},
+					{
+						"name": "CIFs_Spending_92_12M",
+						"type": "String"
+					},
+					{
+						"name": "CIFs_Spending_94_12M",
+						"type": "String"
+					},
+					{
+						"name": "CIFs_Spending_95_12M",
+						"type": "String"
+					},
+					{
+						"name": "CIFs_Spending_96_12M",
+						"type": "String"
+					},
+					{
+						"name": "CIFs_Spending_24M",
+						"type": "String"
+					},
+					{
+						"name": "CIFs_Spending_01_24M",
+						"type": "String"
+					},
+					{
+						"name": "CIFs_Spending_02_24M",
+						"type": "String"
+					},
+					{
+						"name": "CIFs_Spending_03_24M",
+						"type": "String"
+					},
+					{
+						"name": "CIFs_Spending_04_24M",
+						"type": "String"
+					},
+					{
+						"name": "CIFs_Spending_05_24M",
+						"type": "String"
+					},
+					{
+						"name": "CIFs_Spending_06_24M",
+						"type": "String"
+					},
+					{
+						"name": "CIFs_Spending_07_24M",
+						"type": "String"
+					},
+					{
+						"name": "CIFs_Spending_08_24M",
+						"type": "String"
+					},
+					{
+						"name": "CIFs_Spending_09_24M",
+						"type": "String"
+					},
+					{
+						"name": "CIFs_Spending_10_24M",
+						"type": "String"
+					},
+					{
+						"name": "CIFs_Spending_11_24M",
+						"type": "String"
+					},
+					{
+						"name": "CIFs_Spending_12_24M",
+						"type": "String"
+					},
+					{
+						"name": "CIFs_Spending_13_24M",
+						"type": "String"
+					},
+					{
+						"name": "CIFs_Spending_14_24M",
+						"type": "String"
+					},
+					{
+						"name": "CIFs_Spending_15_24M",
+						"type": "String"
+					},
+					{
+						"name": "CIFs_Spending_16_24M",
+						"type": "String"
+					},
+					{
+						"name": "CIFs_Spending_17_24M",
+						"type": "String"
+					},
+					{
+						"name": "CIFs_Spending_18_24M",
+						"type": "String"
+					},
+					{
+						"name": "CIFs_Spending_19_24M",
+						"type": "String"
+					},
+					{
+						"name": "CIFs_Spending_20_24M",
+						"type": "String"
+					},
+					{
+						"name": "CIFs_Spending_92_24M",
+						"type": "String"
+					},
+					{
+						"name": "CIFs_Spending_96_24M",
+						"type": "String"
+					},
+					{
+						"name": "_5_PurPower_per_Household_Index",
+						"type": "String"
+					},
+					{
+						"name": "_2_DIOIKHSEIS_Desc_EN",
+						"type": "String"
+					},
+					{
+						"name": "_3_PERIFERIA_Desc_EN",
+						"type": "String"
+					},
+					{
+						"name": "R_Rank_prior24M",
+						"type": "String"
+					},
+					{
+						"name": "F_Rank_prior24M",
+						"type": "String"
+					},
+					{
+						"name": "M_Rank_prior24M",
+						"type": "String"
+					},
+					{
+						"name": "rfm_prior24M",
+						"type": "String"
+					},
+					{
+						"name": "Children_Held2",
+						"type": "String"
+					},
+					{
+						"name": "Nomos",
+						"type": "String"
+					},
+					{
+						"name": "Description_Mixed",
+						"type": "String"
+					},
+					{
+						"name": "Sem_on_Books",
+						"type": "String"
+					},
+					{
+						"name": "Invoice_txns_24M_range",
+						"type": "String"
+					},
+					{
+						"name": "Invoice_txns_01_24M_range",
+						"type": "String"
+					},
+					{
+						"name": "Invoice_txns_02_24M_range",
+						"type": "String"
+					},
+					{
+						"name": "Invoice_txns_03_24M_range",
+						"type": "String"
+					},
+					{
+						"name": "Invoice_txns_04_24M_range",
+						"type": "String"
+					},
+					{
+						"name": "Invoice_txns_05_24M_range",
+						"type": "String"
+					},
+					{
+						"name": "Invoice_txns_06_24M_range",
+						"type": "String"
+					},
+					{
+						"name": "Invoice_txns_07_24M_range",
+						"type": "String"
+					},
+					{
+						"name": "Invoice_txns_08_24M_range",
+						"type": "String"
+					},
+					{
+						"name": "Invoice_txns_09_24M_range",
+						"type": "String"
+					},
+					{
+						"name": "Invoice_txns_10_24M_range",
+						"type": "String"
+					},
+					{
+						"name": "Invoice_txns_11_24M_range",
+						"type": "String"
+					},
+					{
+						"name": "Invoice_txns_12_24M_range",
+						"type": "String"
+					},
+					{
+						"name": "Invoice_txns_13_24M_range",
+						"type": "String"
+					},
+					{
+						"name": "Invoice_txns_14_24M_range",
+						"type": "String"
+					},
+					{
+						"name": "Invoice_txns_15_24M_range",
+						"type": "String"
+					},
+					{
+						"name": "Invoice_txns_16_24M_range",
+						"type": "String"
+					},
+					{
+						"name": "Invoice_txns_17_24M_range",
+						"type": "String"
+					},
+					{
+						"name": "Invoice_txns_18_24M_range",
+						"type": "String"
+					},
+					{
+						"name": "Invoice_txns_19_24M_range",
+						"type": "String"
+					},
+					{
+						"name": "Invoice_txns_20_24M_range",
+						"type": "String"
+					},
+					{
+						"name": "Invoice_txns_92_24M_range",
+						"type": "String"
+					},
+					{
+						"name": "Invoice_txns_96_24M_range",
+						"type": "String"
+					},
+					{
+						"name": "Invoice_txns_12M_range",
+						"type": "String"
+					},
+					{
+						"name": "Invoice_txns_01_12M_range",
+						"type": "String"
+					},
+					{
+						"name": "Invoice_txns_02_12M_range",
+						"type": "String"
+					},
+					{
+						"name": "Invoice_txns_03_12M_range",
+						"type": "String"
+					},
+					{
+						"name": "Invoice_txns_04_12M_range",
+						"type": "String"
+					},
+					{
+						"name": "Invoice_txns_05_12M_range",
+						"type": "String"
+					},
+					{
+						"name": "Invoice_txns_06_12M_range",
+						"type": "String"
+					},
+					{
+						"name": "Invoice_txns_07_12M_range",
+						"type": "String"
+					},
+					{
+						"name": "Invoice_txns_08_12M_range",
+						"type": "String"
+					},
+					{
+						"name": "Invoice_txns_09_12M_range",
+						"type": "String"
+					},
+					{
+						"name": "Invoice_txns_10_12M_range",
+						"type": "String"
+					},
+					{
+						"name": "Invoice_txns_11_12M_range",
+						"type": "String"
+					},
+					{
+						"name": "Invoice_txns_12_12M_range",
+						"type": "String"
+					},
+					{
+						"name": "Invoice_txns_13_12M_range",
+						"type": "String"
+					},
+					{
+						"name": "Invoice_txns_14_12M_range",
+						"type": "String"
+					},
+					{
+						"name": "Invoice_txns_15_12M_range",
+						"type": "String"
+					},
+					{
+						"name": "Invoice_txns_16_12M_range",
+						"type": "String"
+					},
+					{
+						"name": "Invoice_txns_17_12M_range",
+						"type": "String"
+					},
+					{
+						"name": "Invoice_txns_18_12M_range",
+						"type": "String"
+					},
+					{
+						"name": "Invoice_txns_19_12M_range",
+						"type": "String"
+					},
+					{
+						"name": "Invoice_txns_20_12M_range",
+						"type": "String"
+					},
+					{
+						"name": "Invoice_txns_92_12M_range",
+						"type": "String"
+					},
+					{
+						"name": "Invoice_txns_96_12M_range",
+						"type": "String"
+					},
+					{
+						"name": "Points_Redeemed_24M_range",
+						"type": "String"
+					},
+					{
+						"name": "Points_Earned_24M_range",
+						"type": "String"
+					},
+					{
+						"name": "Points_Earned_ever_range",
+						"type": "String"
+					},
+					{
+						"name": "Invoice_Amount_24M_range",
+						"type": "String"
+					},
+					{
+						"name": "Invoice_SDI_24M",
+						"type": "String"
+					},
+					{
+						"name": "Invoice_SDI_12M",
+						"type": "String"
+					},
+					{
+						"name": "CIFs",
+						"type": "String"
+					},
+					{
+						"name": "Responders",
+						"type": "String"
+					},
+					{
+						"name": "Responders_Lemesos",
+						"type": "String"
+					},
+					{
+						"name": "n",
+						"type": "String"
+					}
+				]
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Training_data_transformed')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "DLinternal",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileName": "Training_data_transformed.csv",
+						"folderPath": "Pafos_Model/Training_data",
+						"fileSystem": "test"
+					},
+					"columnDelimiter": "\t",
+					"escapeChar": "\\",
+					"firstRowAsHeader": true,
+					"quoteChar": "\""
+				},
+				"schema": [
+					{
+						"name": "CustomerId",
+						"type": "String"
+					},
+					{
+						"name": "Loyalty_PointBalance_Range",
+						"type": "String"
+					},
+					{
+						"name": "Gender",
+						"type": "String"
+					},
+					{
+						"name": "AgeRange",
+						"type": "String"
+					},
+					{
+						"name": "HasEmail",
+						"type": "String"
+					},
+					{
+						"name": "_5_DHMOS_Desc_EN",
+						"type": "String"
+					},
+					{
+						"name": "Children_Held",
+						"type": "String"
+					},
+					{
+						"name": "RFM",
+						"type": "String"
+					},
+					{
+						"name": "F_Rank_24M",
+						"type": "String"
+					},
+					{
+						"name": "Activity_History_String_4S",
+						"type": "String"
+					},
+					{
+						"name": "CIFs_Spending_14_12M",
+						"type": "String"
+					},
+					{
+						"name": "CIFs_Spending_95_12M",
+						"type": "String"
+					},
+					{
+						"name": "CIFs_Spending_96_12M",
+						"type": "String"
+					},
+					{
+						"name": "CIFs_Spending_07_24M",
+						"type": "String"
+					},
+					{
+						"name": "Spending_Customer_Status",
+						"type": "String"
+					},
+					{
+						"name": "CIFs_Spending_09_24M",
+						"type": "String"
+					}
+				]
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/UncompressedDataset')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "DLinternal",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "Binary",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileName": "Training_data_raw.txt",
+						"folderPath": "Compressed",
+						"fileSystem": "test"
+					}
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Check latest date and load incrementally')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Lookup max date on Destination table",
+						"type": "Lookup",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "AzureSqlSource",
+								"sqlReaderQuery": {
+									"value": "Select max(DATE) \nas Destination_max_date from \n@{pipeline().parameters.data_sink_table}",
+									"type": "Expression"
+								},
+								"queryTimeout": "02:00:00",
+								"partitionOption": "None"
+							},
+							"dataset": {
+								"referenceName": "SQL_sink",
+								"type": "DatasetReference",
+								"parameters": {
+									"sink_table": {
+										"value": "@pipeline().parameters.data_sink_table",
+										"type": "Expression"
+									}
+								}
+							},
+							"firstRowOnly": true
+						}
+					},
+					{
+						"name": "Lookup max date on Source table",
+						"description": "",
+						"type": "Lookup",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "AzureSqlSource",
+								"sqlReaderQuery": {
+									"value": "Select max(DATE) \nas Source_max_date from \n@{pipeline().parameters.data_source_table}",
+									"type": "Expression"
+								},
+								"queryTimeout": "02:00:00",
+								"partitionOption": "None"
+							},
+							"dataset": {
+								"referenceName": "SQL_source",
+								"type": "DatasetReference",
+								"parameters": {
+									"source_table": {
+										"value": "@pipeline().parameters.data_source_table",
+										"type": "Expression"
+									}
+								}
+							},
+							"firstRowOnly": true
+						}
+					},
+					{
+						"name": "Incremental extract",
+						"type": "Copy",
+						"dependsOn": [
+							{
+								"activity": "Lookup max date on Destination table",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							},
+							{
+								"activity": "Lookup max date on Source table",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "AzureSqlSource",
+								"sqlReaderQuery": {
+									"value": "Select * from @{pipeline().parameters.data_source_table}\nwhere DATE>\n'@{activity('Lookup max date on Destination table').output.firstrow.Destination_max_date}'\n",
+									"type": "Expression"
+								},
+								"queryTimeout": "02:00:00",
+								"partitionOption": "None"
+							},
+							"sink": {
+								"type": "AzureSqlSink",
+								"writeBehavior": "insert",
+								"sqlWriterUseTableLock": false,
+								"disableMetricsCollection": false
+							},
+							"enableStaging": false,
+							"translator": {
+								"type": "TabularTranslator",
+								"typeConversion": true,
+								"typeConversionSettings": {
+									"allowDataTruncation": true,
+									"treatBooleanAsNumber": false
+								}
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "SQL_source",
+								"type": "DatasetReference",
+								"parameters": {
+									"source_table": {
+										"value": "@pipeline().parameters.data_source_table",
+										"type": "Expression"
+									}
+								}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "SQL_sink",
+								"type": "DatasetReference",
+								"parameters": {
+									"sink_table": {
+										"value": "@pipeline().parameters.data_sink_table",
+										"type": "Expression"
+									}
+								}
+							}
+						]
+					},
+					{
+						"name": "Lookup Control table",
+						"type": "Lookup",
+						"dependsOn": [
+							{
+								"activity": "If new entries are found",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "AzureSqlSource",
+								"queryTimeout": "02:00:00",
+								"partitionOption": "None"
+							},
+							"dataset": {
+								"referenceName": "Databricks_SQL_dbo_bank_control_table",
+								"type": "DatasetReference",
+								"parameters": {}
+							},
+							"firstRowOnly": false
+						}
+					},
+					{
+						"name": "If new entries are found",
+						"type": "IfCondition",
+						"dependsOn": [
+							{
+								"activity": "Incremental extract",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"expression": {
+								"value": "@greater(activity('Incremental extract').output.rowsCopied,0)",
+								"type": "Expression"
+							},
+							"ifFalseActivities": [
+								{
+									"name": "Do not update",
+									"type": "Wait",
+									"dependsOn": [],
+									"userProperties": [],
+									"typeProperties": {
+										"waitTimeInSeconds": 1
+									}
+								}
+							],
+							"ifTrueActivities": [
+								{
+									"name": "Update control table_copy1",
+									"type": "SqlServerStoredProcedure",
+									"dependsOn": [],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"storedProcedureName": "[[dbo].[usp_UpdateBankControlTable]",
+										"storedProcedureParameters": {
+											"DestinationTable": {
+												"value": {
+													"value": "@pipeline().parameters.data_sink_table",
+													"type": "Expression"
+												},
+												"type": "String"
+											},
+											"LastLoadDate": {
+												"value": {
+													"value": "@convertFromUtc(pipeline().TriggerTime,'GTB Standard Time')",
+													"type": "Expression"
+												},
+												"type": "DateTime"
+											},
+											"MaxDate": {
+												"value": {
+													"value": "@activity('Lookup max date on Source table').output.firstRow.Source_max_date",
+													"type": "Expression"
+												},
+												"type": "Datetime"
+											},
+											"SourceTable": {
+												"value": {
+													"value": "@pipeline().parameters.data_source_table",
+													"type": "Expression"
+												},
+												"type": "String"
+											},
+											"RowsCopied": {
+												"value": {
+													"value": "@activity('Incremental extract').output.rowsCopied",
+													"type": "Expression"
+												}
+											}
+										}
+									},
+									"linkedServiceName": {
+										"referenceName": "Databricks_SQL",
+										"type": "LinkedServiceReference"
+									}
+								}
+							]
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {},
+					"cancelAfter": {}
+				},
+				"parameters": {
+					"data_source_table": {
+						"type": "string",
+						"defaultValue": "bank_transactions_mar"
+					},
+					"data_sink_table": {
+						"type": "string",
+						"defaultValue": "bank_transactions_base"
+					}
+				},
+				"folder": {
+					"name": "Incremental SQL update (Date)"
+				},
+				"annotations": [],
+				"lastPublishTime": "2022-11-28T15:42:35Z"
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/SQL_sink')]",
+				"[concat(variables('factoryId'), '/datasets/SQL_source')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Demo 1 - Copy Wizard')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Copy_rt4",
+						"type": "Copy",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [
+							{
+								"name": "Source",
+								"value": "dbo.emp"
+							},
+							{
+								"name": "Destination",
+								"value": "test/Output/Emp.csv"
+							}
+						],
+						"typeProperties": {
+							"source": {
+								"type": "AzureSqlSource",
+								"partitionOption": "None"
+							},
+							"sink": {
+								"type": "DelimitedTextSink",
+								"storeSettings": {
+									"type": "AzureBlobFSWriteSettings"
+								},
+								"formatSettings": {
+									"type": "DelimitedTextWriteSettings",
+									"quoteAllText": true,
+									"fileExtension": ".txt"
+								}
+							},
+							"enableStaging": false,
+							"validateDataConsistency": false
+						},
+						"inputs": [
+							{
+								"referenceName": "Databricks_SQL_dbo_emp",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "DLinternal_Employee",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {},
+					"cancelAfter": {}
+				},
+				"folder": {
+					"name": "Demos"
+				},
+				"annotations": [],
+				"lastPublishTime": "2022-11-24T15:46:45Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Demo 2 - Get Metadata Activity')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Get Metadata Last Modified Date",
+						"type": "GetMetadata",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataset": {
+								"referenceName": "DLinternal_inputemptq",
+								"type": "DatasetReference",
+								"parameters": {}
+							},
+							"fieldList": [
+								"lastModified",
+								"size",
+								"itemName"
+							],
+							"storeSettings": {
+								"type": "AzureBlobFSReadSettings",
+								"recursive": true,
+								"enablePartitionDiscovery": false
+							},
+							"formatSettings": {
+								"type": "DelimitedTextReadSettings"
+							}
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {},
+					"cancelAfter": {}
+				},
+				"folder": {
+					"name": "Demos"
+				},
+				"annotations": [],
+				"lastPublishTime": "2022-11-23T12:14:57Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Demo 3 - Stored Procedure Activity')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Get Metadata Last Modified Date",
+						"type": "GetMetadata",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataset": {
+								"referenceName": "DLinternal_inputemptq",
+								"type": "DatasetReference",
+								"parameters": {}
+							},
+							"fieldList": [
+								"lastModified",
+								"size",
+								"itemName"
+							],
+							"storeSettings": {
+								"type": "AzureBlobFSReadSettings",
+								"recursive": true,
+								"enablePartitionDiscovery": false
+							},
+							"formatSettings": {
+								"type": "DelimitedTextReadSettings"
+							}
+						}
+					},
+					{
+						"name": "usp_InsertLastModified",
+						"type": "SqlServerStoredProcedure",
+						"dependsOn": [
+							{
+								"activity": "Get Metadata Last Modified Date",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"storedProcedureName": "[[dbo].[usp_InsertLastModifiedDate]",
+							"storedProcedureParameters": {
+								"FileName": {
+									"value": {
+										"value": "@activity('Get Metadata Last Modified Date').output.itemName",
+										"type": "Expression"
+									},
+									"type": "String"
+								},
+								"ModifiedDate": {
+									"value": {
+										"value": "@activity('Get Metadata Last Modified Date').output.lastModified",
+										"type": "Expression"
+									},
+									"type": "DateTime"
+								},
+								"RecordInsertDate": {
+									"value": {
+										"value": "@convertFromUtc(utcnow(),'GTB Standard Time')",
+										"type": "Expression"
+									},
+									"type": "DateTime"
+								}
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "Databricks_SQL",
+							"type": "LinkedServiceReference"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {},
+					"cancelAfter": {}
+				},
+				"folder": {
+					"name": "Demos"
+				},
+				"annotations": [],
+				"lastPublishTime": "2022-11-23T12:14:57Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Demo 4 - Lookup activity')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Get Metadata Last Modified Date",
+						"type": "GetMetadata",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataset": {
+								"referenceName": "DLinternal_inputemptq",
+								"type": "DatasetReference",
+								"parameters": {}
+							},
+							"fieldList": [
+								"lastModified",
+								"size",
+								"itemName"
+							],
+							"storeSettings": {
+								"type": "AzureBlobFSReadSettings",
+								"recursive": true,
+								"enablePartitionDiscovery": false
+							},
+							"formatSettings": {
+								"type": "DelimitedTextReadSettings"
+							}
+						}
+					},
+					{
+						"name": "Lookup Last Execution Date",
+						"type": "Lookup",
+						"dependsOn": [
+							{
+								"activity": "Get Metadata Last Modified Date",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "AzureSqlSource",
+								"sqlReaderStoredProcedureName": "[[dbo].[usp_LastLoadDate]",
+								"storedProcedureParameters": {
+									"Name": {
+										"type": "String",
+										"value": {
+											"value": "@activity('Get Metadata Last Modified Date').output.itemName",
+											"type": "Expression"
+										}
+									}
+								},
+								"queryTimeout": "02:00:00",
+								"partitionOption": "None"
+							},
+							"dataset": {
+								"referenceName": "Databricks_SQL_dbo_emp",
+								"type": "DatasetReference",
+								"parameters": {}
+							},
+							"firstRowOnly": false
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {},
+					"cancelAfter": {}
+				},
+				"folder": {
+					"name": "Demos"
+				},
+				"annotations": [],
+				"lastPublishTime": "2022-11-23T12:14:57Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Demo 5 - If Condition Activity')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Get Metadata Last Modified Date",
+						"type": "GetMetadata",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataset": {
+								"referenceName": "DLinternal_inputemptq",
+								"type": "DatasetReference",
+								"parameters": {}
+							},
+							"fieldList": [
+								"lastModified",
+								"size",
+								"itemName"
+							],
+							"storeSettings": {
+								"type": "AzureBlobFSReadSettings",
+								"recursive": true,
+								"enablePartitionDiscovery": false
+							},
+							"formatSettings": {
+								"type": "DelimitedTextReadSettings"
+							}
+						}
+					},
+					{
+						"name": "Lookup Last Execution Date",
+						"type": "Lookup",
+						"dependsOn": [
+							{
+								"activity": "Get Metadata Last Modified Date",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "AzureSqlSource",
+								"sqlReaderStoredProcedureName": "[[dbo].[usp_LastLoadDate]",
+								"storedProcedureParameters": {
+									"Name": {
+										"type": "String",
+										"value": {
+											"value": "@activity('Get Metadata Last Modified Date').output.itemName",
+											"type": "Expression"
+										}
+									}
+								},
+								"queryTimeout": "02:00:00",
+								"partitionOption": "None"
+							},
+							"dataset": {
+								"referenceName": "Databricks_SQL_dbo_emp",
+								"type": "DatasetReference",
+								"parameters": {}
+							},
+							"firstRowOnly": true
+						}
+					},
+					{
+						"name": "If Condition Test Dates",
+						"type": "IfCondition",
+						"dependsOn": [
+							{
+								"activity": "Lookup Last Execution Date",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"expression": {
+								"value": "@greaterOrEquals(\naddhours(\nformatDateTime(\nactivity('Get Metadata Last Modified Date').output.lastModified,'o'),-4)\n,activity('Lookup Last Execution Date').output.firstRow.ExecutionDate)\n",
+								"type": "Expression"
+							},
+							"ifFalseActivities": [
+								{
+									"name": "False",
+									"type": "Wait",
+									"dependsOn": [],
+									"userProperties": [],
+									"typeProperties": {
+										"waitTimeInSeconds": 1
+									}
+								}
+							],
+							"ifTrueActivities": [
+								{
+									"name": "usp_UpdateExecutionDate",
+									"type": "SqlServerStoredProcedure",
+									"dependsOn": [],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"storedProcedureName": "[[dbo].[usp_UpdateLastExecutionDate]",
+										"storedProcedureParameters": {
+											"ExecutionDate": {
+												"value": {
+													"value": "@convertFromUtc(pipeline().TriggerTime,'GTB Standard Time')",
+													"type": "Expression"
+												},
+												"type": "DateTime"
+											}
+										}
+									},
+									"linkedServiceName": {
+										"referenceName": "Databricks_SQL",
+										"type": "LinkedServiceReference"
+									}
+								}
+							]
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {},
+					"cancelAfter": {}
+				},
+				"folder": {
+					"name": "Demos"
+				},
+				"annotations": [],
+				"lastPublishTime": "2022-11-23T12:14:57Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/UnzipTest')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Copy_n6c",
+						"type": "Copy",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [
+							{
+								"name": "Source",
+								"value": "test/Compressed/Training_data_raw.zip"
+							},
+							{
+								"name": "Destination",
+								"value": "test/Compressed/Training_data_raw.txt"
+							}
+						],
+						"typeProperties": {
+							"source": {
+								"type": "BinarySource",
+								"storeSettings": {
+									"type": "AzureBlobFSReadSettings",
+									"recursive": true
+								},
+								"formatSettings": {
+									"type": "BinaryReadSettings",
+									"compressionProperties": {
+										"type": "ZipDeflateReadSettings"
+									}
+								}
+							},
+							"sink": {
+								"type": "BinarySink",
+								"storeSettings": {
+									"type": "AzureBlobFSWriteSettings"
+								}
+							},
+							"enableStaging": false
+						},
+						"inputs": [
+							{
+								"referenceName": "SourceDataset_n6c",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "UncompressedDataset",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {},
+					"cancelAfter": {}
+				},
+				"annotations": [],
+				"lastPublishTime": "2022-11-24T15:46:46Z"
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/SourceDataset_n6c')]",
+				"[concat(variables('factoryId'), '/datasets/UncompressedDataset')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Create bank transactions tables')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "Excel_Bank_Transactions_Jan",
+								"type": "DatasetReference"
+							},
+							"name": "BankTransactionsJan"
+						},
+						{
+							"dataset": {
+								"referenceName": "Excel_Bank_Transactions_Feb",
+								"type": "DatasetReference"
+							},
+							"name": "BankTransactionsFeb"
+						},
+						{
+							"dataset": {
+								"referenceName": "Excel_Bank_Transactions_March",
+								"type": "DatasetReference"
+							},
+							"name": "BankTransactionsMar"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "Databricks_SQL_dbo_bank_transactions_base",
+								"type": "DatasetReference"
+							},
+							"name": "BankTransactionsBase"
+						},
+						{
+							"dataset": {
+								"referenceName": "Databricks_SQL_dbo_bank_transactions_feb",
+								"type": "DatasetReference"
+							},
+							"name": "BankTransactionsFebSink"
+						},
+						{
+							"dataset": {
+								"referenceName": "Databricks_SQL_dbo_bank_transactions_mar",
+								"type": "DatasetReference"
+							},
+							"name": "BankTransactionsMarNew"
+						}
+					],
+					"transformations": [],
+					"scriptLines": [
+						"source(output(",
+						"          {Account No} as string,",
+						"          DATE as string,",
+						"          {TRANSACTION DETAILS} as string,",
+						"          {CHQ.NO.} as string,",
+						"          {VALUE DATE} as string,",
+						"          {WITHDRAWAL AMT} as string,",
+						"          {DEPOSIT AMT} as string,",
+						"          {BALANCE AMT} as string,",
+						"          {.} as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> BankTransactionsJan",
+						"source(output(",
+						"          {Account No} as string,",
+						"          DATE as string,",
+						"          {TRANSACTION DETAILS} as string,",
+						"          {CHQ.NO.} as string,",
+						"          {VALUE DATE} as string,",
+						"          {WITHDRAWAL AMT} as string,",
+						"          {DEPOSIT AMT} as string,",
+						"          {BALANCE AMT} as string,",
+						"          {.} as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> BankTransactionsFeb",
+						"source(output(",
+						"          {Account No} as string,",
+						"          DATE as string,",
+						"          {TRANSACTION DETAILS} as string,",
+						"          {CHQ.NO.} as string,",
+						"          {VALUE DATE} as string,",
+						"          {WITHDRAWAL AMT} as string,",
+						"          {DEPOSIT AMT} as string,",
+						"          {BALANCE AMT} as string,",
+						"          {.} as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> BankTransactionsMar",
+						"BankTransactionsJan sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     deletable:false,",
+						"     insertable:true,",
+						"     updateable:false,",
+						"     upsertable:false,",
+						"     format: 'table',",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     errorHandlingOption: 'stopOnFirstError') ~> BankTransactionsBase",
+						"BankTransactionsFeb sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     deletable:false,",
+						"     insertable:true,",
+						"     updateable:false,",
+						"     upsertable:false,",
+						"     format: 'table',",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     errorHandlingOption: 'stopOnFirstError') ~> BankTransactionsFebSink",
+						"BankTransactionsMar sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     deletable:false,",
+						"     insertable:true,",
+						"     updateable:false,",
+						"     upsertable:false,",
+						"     format: 'table',",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     errorHandlingOption: 'stopOnFirstError') ~> BankTransactionsMarNew"
+					]
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/DataFlowDemo')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "DLinternal_ProductsAll",
+								"type": "DatasetReference"
+							},
+							"name": "ProductsAll"
+						},
+						{
+							"dataset": {
+								"referenceName": "DLinternal_ProductModel",
+								"type": "DatasetReference"
+							},
+							"name": "ProductModels"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "DLinternal_ProductsFinal",
+								"type": "DatasetReference"
+							},
+							"name": "ProductsFinal"
+						}
+					],
+					"transformations": [
+						{
+							"name": "CombineDatasets"
+						},
+						{
+							"name": "RemoveDuplicateColumns"
+						},
+						{
+							"name": "RemoveNoListPrice"
+						}
+					],
+					"scriptLines": [
+						"source(output(",
+						"          ProductID as short,",
+						"          Name as string,",
+						"          ProductNumber as string,",
+						"          MakeFlag as boolean,",
+						"          FinishedGoodsFlag as boolean,",
+						"          Color as string,",
+						"          SafetyStockLevel as short,",
+						"          ReorderPoint as short,",
+						"          StandardCost as double,",
+						"          ListPrice as double,",
+						"          Size as string,",
+						"          SizeUnitMeasureCode as string,",
+						"          WeightUnitMeasureCode as string,",
+						"          Weight as integer,",
+						"          DaysToManufacture as short,",
+						"          ProductLine as string,",
+						"          Class as string,",
+						"          Style as string,",
+						"          ProductSubcategoryID as string,",
+						"          ProductModelID as string,",
+						"          SellStartDate as timestamp,",
+						"          SellEndDate as timestamp,",
+						"          DiscontinuedDate as timestamp",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> ProductsAll",
+						"source(output(",
+						"          ProductModelID as string,",
+						"          Name as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> ProductModels",
+						"ProductsAll, ProductModels lookup(ProductsAll@ProductModelID == ProductModels@ProductModelID,",
+						"     multiple: false,",
+						"     pickup: 'any',",
+						"     broadcast: 'auto')~> CombineDatasets",
+						"CombineDatasets select(mapColumn(",
+						"          ProductID,",
+						"          Name = ProductsAll@Name,",
+						"          {Model Name} = ProductModels@Name,",
+						"          ProductNumber,",
+						"          MakeFlag,",
+						"          FinishedGoodsFlag,",
+						"          Color,",
+						"          SafetyStockLevel,",
+						"          ReorderPoint,",
+						"          StandardCost,",
+						"          ListPrice,",
+						"          Size,",
+						"          SizeUnitMeasureCode,",
+						"          WeightUnitMeasureCode,",
+						"          Weight,",
+						"          DaysToManufacture,",
+						"          ProductLine,",
+						"          Class,",
+						"          Style,",
+						"          ProductSubcategoryID,",
+						"          ProductModelID = ProductsAll@ProductModelID,",
+						"          SellStartDate,",
+						"          SellEndDate,",
+						"          DiscontinuedDate",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> RemoveDuplicateColumns",
+						"RemoveDuplicateColumns filter(notEquals(ListPrice,0)) ~> RemoveNoListPrice",
+						"RemoveNoListPrice sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     input(",
+						"          ID as string,",
+						"          FirstName as string,",
+						"          LastName as string",
+						"     ),",
+						"     umask: 0022,",
+						"     preCommands: [],",
+						"     postCommands: [],",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> ProductsFinal"
+					]
+				}
+			},
+			"dependsOn": []
+		}
+	]
+}

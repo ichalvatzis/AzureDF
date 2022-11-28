@@ -1,0 +1,27 @@
+{
+	"$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"factoryName": {
+			"value": "df-ld-internal"
+		},
+		"DBinternal_accessToken": {
+			"value": ""
+		},
+		"DLinternal_accountKey": {
+			"value": ""
+		},
+		"Databricks_SQL_connectionString": {
+			"value": ""
+		},
+		"DBinternal_properties_typeProperties_existingClusterId": {
+			"value": "1115-152610-omxx4frl"
+		},
+		"DLinternal_properties_typeProperties_url": {
+			"value": "https://dlinternal.dfs.core.windows.net/"
+		},
+		"Full pipeline add new scoring file_properties_typeProperties_scope": {
+			"value": "/subscriptions/1cf5d7b4-d197-4f43-b02e-63cf3c8254da/resourceGroups/Analytics-RG/providers/Microsoft.Storage/storageAccounts/dlinternal"
+		}
+	}
+}
