@@ -1,0 +1,675 @@
+{
+	"$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"factoryName": {
+			"type": "string",
+			"metadata": "Data Factory name"
+		},
+		"Databricks_SQL": {
+			"type": "string"
+		},
+		"DLinternal": {
+			"type": "string"
+		}
+	},
+	"variables": {
+		"factoryId": "[concat('Microsoft.DataFactory/factories/', parameters('factoryName'))]"
+	},
+	"resources": [
+		{
+			"name": "[concat(parameters('factoryName'), '/Create bank data tables')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Create bank data tables",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [
+							{
+								"activity": "Create Control table",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "Create bank transactions tables",
+								"type": "DataFlowReference"
+							},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							},
+							"traceLevel": "Fine"
+						}
+					},
+					{
+						"name": "Update Control table",
+						"type": "SqlServerStoredProcedure",
+						"dependsOn": [
+							{
+								"activity": "Lookup max date on base table",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"storedProcedureName": "[[dbo].[usp_UpdateBankControlTable]",
+							"storedProcedureParameters": {
+								"DestinationTable": {
+									"value": "bank_transactions_base",
+									"type": "String"
+								},
+								"LastLoadDate": {
+									"value": {
+										"value": "@convertFromUtc(pipeline().TriggerTime,'GTB Standard Time')",
+										"type": "Expression"
+									},
+									"type": "DateTime"
+								},
+								"MaxDate": {
+									"value": {
+										"value": "@activity('Lookup max date on base table').output.firstRow.Base_max_date",
+										"type": "Expression"
+									},
+									"type": "Datetime"
+								},
+								"SourceTable": {
+									"value": "bank_transactions_base",
+									"type": "String"
+								},
+								"RowsCopied": {
+									"value": "0",
+									"type": "Int64"
+								}
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "[parameters('Databricks_SQL')]",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "Drop Bank tables",
+						"type": "Script",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"linkedServiceName": {
+							"referenceName": "[parameters('Databricks_SQL')]",
+							"type": "LinkedServiceReference"
+						},
+						"typeProperties": {
+							"scripts": [
+								{
+									"type": "Query",
+									"text": "DROP TABLE IF EXISTS dbo.bank_transactions_base,dbo.bank_transactions_feb,dbo.bank_transactions_mar,dbo.bank_control_table;"
+								}
+							],
+							"scriptBlockExecutionTimeout": "02:00:00"
+						}
+					},
+					{
+						"name": "Lookup max date on base table",
+						"type": "Lookup",
+						"dependsOn": [
+							{
+								"activity": "Create bank data tables",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "AzureSqlSource",
+								"sqlReaderQuery": {
+									"value": "Select max(DATE) \nas Base_max_date from dbo.bank_transactions_base\n",
+									"type": "Expression"
+								},
+								"queryTimeout": "02:00:00",
+								"partitionOption": "None"
+							},
+							"dataset": {
+								"referenceName": "Databricks_SQL_dbo_bank_transactions_base",
+								"type": "DatasetReference"
+							},
+							"firstRowOnly": true
+						}
+					},
+					{
+						"name": "Create Control table",
+						"type": "Script",
+						"dependsOn": [
+							{
+								"activity": "Drop Bank tables",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"linkedServiceName": {
+							"referenceName": "[parameters('Databricks_SQL')]",
+							"type": "LinkedServiceReference"
+						},
+						"typeProperties": {
+							"scripts": [
+								{
+									"type": "Query",
+									"text": "CREATE TABLE [dbo].[bank_control_table] (\n    [DestinationTable] VARCHAR (50) NOT NULL,\n    [SourceTable]      VARCHAR (50) NULL,\n    [MaxDate]          DATETIME     NULL,\n    [LastLoadDate]     DATETIME     NULL,\n    [RowsCopied] VARCHAR (50) NULL,\n    CONSTRAINT [PK_bank_control_table] PRIMARY KEY CLUSTERED ([DestinationTable] ASC)\n);"
+								}
+							],
+							"scriptBlockExecutionTimeout": "02:00:00"
+						}
+					},
+					{
+						"name": "Lookup Control table",
+						"type": "Lookup",
+						"dependsOn": [
+							{
+								"activity": "Update Control table",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "AzureSqlSource",
+								"queryTimeout": "02:00:00",
+								"partitionOption": "None"
+							},
+							"dataset": {
+								"referenceName": "Databricks_SQL_dbo_bank_control_table",
+								"type": "DatasetReference"
+							},
+							"firstRowOnly": false
+						}
+					}
+				],
+				"folder": {
+					"name": "Incremental SQL update (Date)"
+				},
+				"annotations": [],
+				"lastPublishTime": "2022-11-28T15:42:35Z"
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/dataflows/Create bank transactions tables')]",
+				"[concat(variables('factoryId'), '/datasets/Databricks_SQL_dbo_bank_transactions_base')]",
+				"[concat(variables('factoryId'), '/datasets/Databricks_SQL_dbo_bank_control_table')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Create bank transactions tables')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "Excel_Bank_Transactions_Jan",
+								"type": "DatasetReference"
+							},
+							"name": "BankTransactionsJan"
+						},
+						{
+							"dataset": {
+								"referenceName": "Excel_Bank_Transactions_Feb",
+								"type": "DatasetReference"
+							},
+							"name": "BankTransactionsFeb"
+						},
+						{
+							"dataset": {
+								"referenceName": "Excel_Bank_Transactions_March",
+								"type": "DatasetReference"
+							},
+							"name": "BankTransactionsMar"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "Databricks_SQL_dbo_bank_transactions_base",
+								"type": "DatasetReference"
+							},
+							"name": "BankTransactionsBase"
+						},
+						{
+							"dataset": {
+								"referenceName": "Databricks_SQL_dbo_bank_transactions_feb",
+								"type": "DatasetReference"
+							},
+							"name": "BankTransactionsFebSink"
+						},
+						{
+							"dataset": {
+								"referenceName": "Databricks_SQL_dbo_bank_transactions_mar",
+								"type": "DatasetReference"
+							},
+							"name": "BankTransactionsMarNew"
+						}
+					],
+					"transformations": [],
+					"scriptLines": [
+						"source(output(",
+						"          {Account No} as string,",
+						"          DATE as string,",
+						"          {TRANSACTION DETAILS} as string,",
+						"          {CHQ.NO.} as string,",
+						"          {VALUE DATE} as string,",
+						"          {WITHDRAWAL AMT} as string,",
+						"          {DEPOSIT AMT} as string,",
+						"          {BALANCE AMT} as string,",
+						"          {.} as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> BankTransactionsJan",
+						"source(output(",
+						"          {Account No} as string,",
+						"          DATE as string,",
+						"          {TRANSACTION DETAILS} as string,",
+						"          {CHQ.NO.} as string,",
+						"          {VALUE DATE} as string,",
+						"          {WITHDRAWAL AMT} as string,",
+						"          {DEPOSIT AMT} as string,",
+						"          {BALANCE AMT} as string,",
+						"          {.} as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> BankTransactionsFeb",
+						"source(output(",
+						"          {Account No} as string,",
+						"          DATE as string,",
+						"          {TRANSACTION DETAILS} as string,",
+						"          {CHQ.NO.} as string,",
+						"          {VALUE DATE} as string,",
+						"          {WITHDRAWAL AMT} as string,",
+						"          {DEPOSIT AMT} as string,",
+						"          {BALANCE AMT} as string,",
+						"          {.} as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> BankTransactionsMar",
+						"BankTransactionsJan sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     deletable:false,",
+						"     insertable:true,",
+						"     updateable:false,",
+						"     upsertable:false,",
+						"     format: 'table',",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     errorHandlingOption: 'stopOnFirstError') ~> BankTransactionsBase",
+						"BankTransactionsFeb sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     deletable:false,",
+						"     insertable:true,",
+						"     updateable:false,",
+						"     upsertable:false,",
+						"     format: 'table',",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     errorHandlingOption: 'stopOnFirstError') ~> BankTransactionsFebSink",
+						"BankTransactionsMar sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     deletable:false,",
+						"     insertable:true,",
+						"     updateable:false,",
+						"     upsertable:false,",
+						"     format: 'table',",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     errorHandlingOption: 'stopOnFirstError') ~> BankTransactionsMarNew"
+					]
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/Excel_Bank_Transactions_Jan')]",
+				"[concat(variables('factoryId'), '/datasets/Excel_Bank_Transactions_Feb')]",
+				"[concat(variables('factoryId'), '/datasets/Excel_Bank_Transactions_March')]",
+				"[concat(variables('factoryId'), '/datasets/Databricks_SQL_dbo_bank_transactions_base')]",
+				"[concat(variables('factoryId'), '/datasets/Databricks_SQL_dbo_bank_transactions_feb')]",
+				"[concat(variables('factoryId'), '/datasets/Databricks_SQL_dbo_bank_transactions_mar')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Databricks_SQL_dbo_bank_transactions_base')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "[parameters('Databricks_SQL')]",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [],
+				"typeProperties": {
+					"schema": "dbo",
+					"table": "bank_transactions_base"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Databricks_SQL_dbo_bank_control_table')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "[parameters('Databricks_SQL')]",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [
+					{
+						"name": "DestinationTable",
+						"type": "varchar"
+					},
+					{
+						"name": "SourceTable",
+						"type": "varchar"
+					},
+					{
+						"name": "MaxDate",
+						"type": "datetime",
+						"precision": 23,
+						"scale": 3
+					},
+					{
+						"name": "LastLoadDate",
+						"type": "datetime",
+						"precision": 23,
+						"scale": 3
+					}
+				],
+				"typeProperties": {
+					"schema": "dbo",
+					"table": "bank_control_table"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Excel_Bank_Transactions_Jan')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "[parameters('DLinternal')]",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "Excel",
+				"typeProperties": {
+					"sheetName": "Sheet1",
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileName": "Bank_Jan_19.xlsx",
+						"folderPath": "Input/Bank",
+						"fileSystem": "test"
+					},
+					"firstRowAsHeader": true
+				},
+				"schema": [
+					{
+						"name": "Account No",
+						"type": "String"
+					},
+					{
+						"name": "DATE",
+						"type": "String"
+					},
+					{
+						"name": "TRANSACTION DETAILS",
+						"type": "String"
+					},
+					{
+						"name": "CHQ.NO.",
+						"type": "String"
+					},
+					{
+						"name": "VALUE DATE",
+						"type": "String"
+					},
+					{
+						"name": "WITHDRAWAL AMT",
+						"type": "String"
+					},
+					{
+						"name": "DEPOSIT AMT",
+						"type": "String"
+					},
+					{
+						"name": "BALANCE AMT",
+						"type": "String"
+					},
+					{
+						"name": ".",
+						"type": "String"
+					}
+				]
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Excel_Bank_Transactions_Feb')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "[parameters('DLinternal')]",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "Excel",
+				"typeProperties": {
+					"sheetName": "Sheet1",
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileName": "Bank_Feb_19.xlsx",
+						"folderPath": "Input/Bank",
+						"fileSystem": "test"
+					},
+					"firstRowAsHeader": true
+				},
+				"schema": [
+					{
+						"name": "Account No",
+						"type": "String"
+					},
+					{
+						"name": "DATE",
+						"type": "String"
+					},
+					{
+						"name": "TRANSACTION DETAILS",
+						"type": "String"
+					},
+					{
+						"name": "CHQ.NO.",
+						"type": "String"
+					},
+					{
+						"name": "VALUE DATE",
+						"type": "String"
+					},
+					{
+						"name": "WITHDRAWAL AMT",
+						"type": "String"
+					},
+					{
+						"name": "DEPOSIT AMT",
+						"type": "String"
+					},
+					{
+						"name": "BALANCE AMT",
+						"type": "String"
+					},
+					{
+						"name": ".",
+						"type": "String"
+					}
+				]
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Excel_Bank_Transactions_March')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "[parameters('DLinternal')]",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "Excel",
+				"typeProperties": {
+					"sheetName": "Sheet1",
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileName": "Bank_Mar_19.xlsx",
+						"folderPath": "Input/Bank",
+						"fileSystem": "test"
+					},
+					"firstRowAsHeader": true
+				},
+				"schema": [
+					{
+						"name": "Account No",
+						"type": "String"
+					},
+					{
+						"name": "DATE",
+						"type": "String"
+					},
+					{
+						"name": "TRANSACTION DETAILS",
+						"type": "String"
+					},
+					{
+						"name": "CHQ.NO.",
+						"type": "String"
+					},
+					{
+						"name": "VALUE DATE",
+						"type": "String"
+					},
+					{
+						"name": "WITHDRAWAL AMT",
+						"type": "String"
+					},
+					{
+						"name": "DEPOSIT AMT",
+						"type": "String"
+					},
+					{
+						"name": "BALANCE AMT",
+						"type": "String"
+					},
+					{
+						"name": ".",
+						"type": "String"
+					}
+				]
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Databricks_SQL_dbo_bank_transactions_feb')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "[parameters('Databricks_SQL')]",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [],
+				"typeProperties": {
+					"schema": "dbo",
+					"table": "bank_transactions_feb"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Databricks_SQL_dbo_bank_transactions_mar')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "[parameters('Databricks_SQL')]",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [],
+				"typeProperties": {
+					"schema": "dbo",
+					"table": "bank_transactions_mar"
+				}
+			},
+			"dependsOn": []
+		}
+	]
+}
