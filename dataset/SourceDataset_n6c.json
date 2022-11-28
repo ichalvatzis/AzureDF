@@ -1,0 +1,23 @@
+{
+	"name": "SourceDataset_n6c",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "DLinternal",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "Binary",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"fileName": "Training_data_raw.zip",
+				"folderPath": "Compressed",
+				"fileSystem": "test"
+			},
+			"compression": {
+				"type": "ZipDeflate"
+			}
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

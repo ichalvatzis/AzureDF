@@ -1,0 +1,578 @@
+{
+	"name": "Training_data_raw",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "DLinternal",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "DelimitedText",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"fileName": "Training_data_raw.txt",
+				"folderPath": "Pafos_Model/Training_data",
+				"fileSystem": "test"
+			},
+			"columnDelimiter": "\t",
+			"escapeChar": "\\",
+			"firstRowAsHeader": true,
+			"quoteChar": "\""
+		},
+		"schema": [
+			{
+				"name": "CustomerId",
+				"type": "String"
+			},
+			{
+				"name": "Loyalty_PointBalance_Range",
+				"type": "String"
+			},
+			{
+				"name": "Loyalty_Registration_Year",
+				"type": "String"
+			},
+			{
+				"name": "Loyalty_Preferred_Store",
+				"type": "String"
+			},
+			{
+				"name": "Customer_Random_Digit",
+				"type": "String"
+			},
+			{
+				"name": "Customer_Random_Digit2",
+				"type": "String"
+			},
+			{
+				"name": "Gender",
+				"type": "String"
+			},
+			{
+				"name": "AgeRange",
+				"type": "String"
+			},
+			{
+				"name": "AgeRange2",
+				"type": "String"
+			},
+			{
+				"name": "HasEmail",
+				"type": "String"
+			},
+			{
+				"name": "Closest_Distance_range",
+				"type": "String"
+			},
+			{
+				"name": "Postcode",
+				"type": "String"
+			},
+			{
+				"name": "_4_PERIFER_ENOTHTA_Desc_EN",
+				"type": "String"
+			},
+			{
+				"name": "_5_DHMOS_Desc_EN",
+				"type": "String"
+			},
+			{
+				"name": "Children_Held",
+				"type": "String"
+			},
+			{
+				"name": "RFM",
+				"type": "String"
+			},
+			{
+				"name": "R_Rank_24M",
+				"type": "String"
+			},
+			{
+				"name": "F_Rank_24M",
+				"type": "String"
+			},
+			{
+				"name": "M_Rank_24M",
+				"type": "String"
+			},
+			{
+				"name": "Activity_History_String_8Q",
+				"type": "String"
+			},
+			{
+				"name": "Activity_History_String_4S",
+				"type": "String"
+			},
+			{
+				"name": "Spending_Customer_Status",
+				"type": "String"
+			},
+			{
+				"name": "Activity_History_String_3M",
+				"type": "String"
+			},
+			{
+				"name": "CIFs_Spending_12M",
+				"type": "String"
+			},
+			{
+				"name": "CIFs_Spending_01_12M",
+				"type": "String"
+			},
+			{
+				"name": "CIFs_Spending_02_12M",
+				"type": "String"
+			},
+			{
+				"name": "CIFs_Spending_03_12M",
+				"type": "String"
+			},
+			{
+				"name": "CIFs_Spending_04_12M",
+				"type": "String"
+			},
+			{
+				"name": "CIFs_Spending_05_12M",
+				"type": "String"
+			},
+			{
+				"name": "CIFs_Spending_06_12M",
+				"type": "String"
+			},
+			{
+				"name": "CIFs_Spending_07_12M",
+				"type": "String"
+			},
+			{
+				"name": "CIFs_Spending_08_12M",
+				"type": "String"
+			},
+			{
+				"name": "CIFs_Spending_09_12M",
+				"type": "String"
+			},
+			{
+				"name": "CIFs_Spending_10_12M",
+				"type": "String"
+			},
+			{
+				"name": "CIFs_Spending_11_12M",
+				"type": "String"
+			},
+			{
+				"name": "CIFs_Spending_12_12M",
+				"type": "String"
+			},
+			{
+				"name": "CIFs_Spending_13_12M",
+				"type": "String"
+			},
+			{
+				"name": "CIFs_Spending_14_12M",
+				"type": "String"
+			},
+			{
+				"name": "CIFs_Spending_15_12M",
+				"type": "String"
+			},
+			{
+				"name": "CIFs_Spending_16_12M",
+				"type": "String"
+			},
+			{
+				"name": "CIFs_Spending_17_12M",
+				"type": "String"
+			},
+			{
+				"name": "CIFs_Spending_18_12M",
+				"type": "String"
+			},
+			{
+				"name": "CIFs_Spending_19_12M",
+				"type": "String"
+			},
+			{
+				"name": "CIFs_Spending_20_12M",
+				"type": "String"
+			},
+			{
+				"name": "CIFs_Spending_92_12M",
+				"type": "String"
+			},
+			{
+				"name": "CIFs_Spending_94_12M",
+				"type": "String"
+			},
+			{
+				"name": "CIFs_Spending_95_12M",
+				"type": "String"
+			},
+			{
+				"name": "CIFs_Spending_96_12M",
+				"type": "String"
+			},
+			{
+				"name": "CIFs_Spending_24M",
+				"type": "String"
+			},
+			{
+				"name": "CIFs_Spending_01_24M",
+				"type": "String"
+			},
+			{
+				"name": "CIFs_Spending_02_24M",
+				"type": "String"
+			},
+			{
+				"name": "CIFs_Spending_03_24M",
+				"type": "String"
+			},
+			{
+				"name": "CIFs_Spending_04_24M",
+				"type": "String"
+			},
+			{
+				"name": "CIFs_Spending_05_24M",
+				"type": "String"
+			},
+			{
+				"name": "CIFs_Spending_06_24M",
+				"type": "String"
+			},
+			{
+				"name": "CIFs_Spending_07_24M",
+				"type": "String"
+			},
+			{
+				"name": "CIFs_Spending_08_24M",
+				"type": "String"
+			},
+			{
+				"name": "CIFs_Spending_09_24M",
+				"type": "String"
+			},
+			{
+				"name": "CIFs_Spending_10_24M",
+				"type": "String"
+			},
+			{
+				"name": "CIFs_Spending_11_24M",
+				"type": "String"
+			},
+			{
+				"name": "CIFs_Spending_12_24M",
+				"type": "String"
+			},
+			{
+				"name": "CIFs_Spending_13_24M",
+				"type": "String"
+			},
+			{
+				"name": "CIFs_Spending_14_24M",
+				"type": "String"
+			},
+			{
+				"name": "CIFs_Spending_15_24M",
+				"type": "String"
+			},
+			{
+				"name": "CIFs_Spending_16_24M",
+				"type": "String"
+			},
+			{
+				"name": "CIFs_Spending_17_24M",
+				"type": "String"
+			},
+			{
+				"name": "CIFs_Spending_18_24M",
+				"type": "String"
+			},
+			{
+				"name": "CIFs_Spending_19_24M",
+				"type": "String"
+			},
+			{
+				"name": "CIFs_Spending_20_24M",
+				"type": "String"
+			},
+			{
+				"name": "CIFs_Spending_92_24M",
+				"type": "String"
+			},
+			{
+				"name": "CIFs_Spending_96_24M",
+				"type": "String"
+			},
+			{
+				"name": "_5_PurPower_per_Household_Index",
+				"type": "String"
+			},
+			{
+				"name": "_2_DIOIKHSEIS_Desc_EN",
+				"type": "String"
+			},
+			{
+				"name": "_3_PERIFERIA_Desc_EN",
+				"type": "String"
+			},
+			{
+				"name": "R_Rank_prior24M",
+				"type": "String"
+			},
+			{
+				"name": "F_Rank_prior24M",
+				"type": "String"
+			},
+			{
+				"name": "M_Rank_prior24M",
+				"type": "String"
+			},
+			{
+				"name": "rfm_prior24M",
+				"type": "String"
+			},
+			{
+				"name": "Children_Held2",
+				"type": "String"
+			},
+			{
+				"name": "Nomos",
+				"type": "String"
+			},
+			{
+				"name": "Description_Mixed",
+				"type": "String"
+			},
+			{
+				"name": "Sem_on_Books",
+				"type": "String"
+			},
+			{
+				"name": "Invoice_txns_24M_range",
+				"type": "String"
+			},
+			{
+				"name": "Invoice_txns_01_24M_range",
+				"type": "String"
+			},
+			{
+				"name": "Invoice_txns_02_24M_range",
+				"type": "String"
+			},
+			{
+				"name": "Invoice_txns_03_24M_range",
+				"type": "String"
+			},
+			{
+				"name": "Invoice_txns_04_24M_range",
+				"type": "String"
+			},
+			{
+				"name": "Invoice_txns_05_24M_range",
+				"type": "String"
+			},
+			{
+				"name": "Invoice_txns_06_24M_range",
+				"type": "String"
+			},
+			{
+				"name": "Invoice_txns_07_24M_range",
+				"type": "String"
+			},
+			{
+				"name": "Invoice_txns_08_24M_range",
+				"type": "String"
+			},
+			{
+				"name": "Invoice_txns_09_24M_range",
+				"type": "String"
+			},
+			{
+				"name": "Invoice_txns_10_24M_range",
+				"type": "String"
+			},
+			{
+				"name": "Invoice_txns_11_24M_range",
+				"type": "String"
+			},
+			{
+				"name": "Invoice_txns_12_24M_range",
+				"type": "String"
+			},
+			{
+				"name": "Invoice_txns_13_24M_range",
+				"type": "String"
+			},
+			{
+				"name": "Invoice_txns_14_24M_range",
+				"type": "String"
+			},
+			{
+				"name": "Invoice_txns_15_24M_range",
+				"type": "String"
+			},
+			{
+				"name": "Invoice_txns_16_24M_range",
+				"type": "String"
+			},
+			{
+				"name": "Invoice_txns_17_24M_range",
+				"type": "String"
+			},
+			{
+				"name": "Invoice_txns_18_24M_range",
+				"type": "String"
+			},
+			{
+				"name": "Invoice_txns_19_24M_range",
+				"type": "String"
+			},
+			{
+				"name": "Invoice_txns_20_24M_range",
+				"type": "String"
+			},
+			{
+				"name": "Invoice_txns_92_24M_range",
+				"type": "String"
+			},
+			{
+				"name": "Invoice_txns_96_24M_range",
+				"type": "String"
+			},
+			{
+				"name": "Invoice_txns_12M_range",
+				"type": "String"
+			},
+			{
+				"name": "Invoice_txns_01_12M_range",
+				"type": "String"
+			},
+			{
+				"name": "Invoice_txns_02_12M_range",
+				"type": "String"
+			},
+			{
+				"name": "Invoice_txns_03_12M_range",
+				"type": "String"
+			},
+			{
+				"name": "Invoice_txns_04_12M_range",
+				"type": "String"
+			},
+			{
+				"name": "Invoice_txns_05_12M_range",
+				"type": "String"
+			},
+			{
+				"name": "Invoice_txns_06_12M_range",
+				"type": "String"
+			},
+			{
+				"name": "Invoice_txns_07_12M_range",
+				"type": "String"
+			},
+			{
+				"name": "Invoice_txns_08_12M_range",
+				"type": "String"
+			},
+			{
+				"name": "Invoice_txns_09_12M_range",
+				"type": "String"
+			},
+			{
+				"name": "Invoice_txns_10_12M_range",
+				"type": "String"
+			},
+			{
+				"name": "Invoice_txns_11_12M_range",
+				"type": "String"
+			},
+			{
+				"name": "Invoice_txns_12_12M_range",
+				"type": "String"
+			},
+			{
+				"name": "Invoice_txns_13_12M_range",
+				"type": "String"
+			},
+			{
+				"name": "Invoice_txns_14_12M_range",
+				"type": "String"
+			},
+			{
+				"name": "Invoice_txns_15_12M_range",
+				"type": "String"
+			},
+			{
+				"name": "Invoice_txns_16_12M_range",
+				"type": "String"
+			},
+			{
+				"name": "Invoice_txns_17_12M_range",
+				"type": "String"
+			},
+			{
+				"name": "Invoice_txns_18_12M_range",
+				"type": "String"
+			},
+			{
+				"name": "Invoice_txns_19_12M_range",
+				"type": "String"
+			},
+			{
+				"name": "Invoice_txns_20_12M_range",
+				"type": "String"
+			},
+			{
+				"name": "Invoice_txns_92_12M_range",
+				"type": "String"
+			},
+			{
+				"name": "Invoice_txns_96_12M_range",
+				"type": "String"
+			},
+			{
+				"name": "Points_Redeemed_24M_range",
+				"type": "String"
+			},
+			{
+				"name": "Points_Earned_24M_range",
+				"type": "String"
+			},
+			{
+				"name": "Points_Earned_ever_range",
+				"type": "String"
+			},
+			{
+				"name": "Invoice_Amount_24M_range",
+				"type": "String"
+			},
+			{
+				"name": "Invoice_SDI_24M",
+				"type": "String"
+			},
+			{
+				"name": "Invoice_SDI_12M",
+				"type": "String"
+			},
+			{
+				"name": "CIFs",
+				"type": "String"
+			},
+			{
+				"name": "Responders",
+				"type": "String"
+			},
+			{
+				"name": "Responders_Lemesos",
+				"type": "String"
+			},
+			{
+				"name": "n",
+				"type": "String"
+			}
+		]
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

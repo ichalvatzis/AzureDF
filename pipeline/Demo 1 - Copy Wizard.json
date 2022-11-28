@@ -1,0 +1,66 @@
+{
+	"name": "Demo 1 - Copy Wizard",
+	"properties": {
+		"activities": [
+			{
+				"name": "Copy_rt4",
+				"type": "Copy",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [
+					{
+						"name": "Source",
+						"value": "dbo.emp"
+					},
+					{
+						"name": "Destination",
+						"value": "test/Output/Emp.csv"
+					}
+				],
+				"typeProperties": {
+					"source": {
+						"type": "AzureSqlSource",
+						"partitionOption": "None"
+					},
+					"sink": {
+						"type": "DelimitedTextSink",
+						"storeSettings": {
+							"type": "AzureBlobFSWriteSettings"
+						},
+						"formatSettings": {
+							"type": "DelimitedTextWriteSettings",
+							"quoteAllText": true,
+							"fileExtension": ".txt"
+						}
+					},
+					"enableStaging": false,
+					"validateDataConsistency": false
+				},
+				"inputs": [
+					{
+						"referenceName": "Databricks_SQL_dbo_emp",
+						"type": "DatasetReference"
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "DLinternal_Employee",
+						"type": "DatasetReference"
+					}
+				]
+			}
+		],
+		"folder": {
+			"name": "Demos"
+		},
+		"annotations": [],
+		"lastPublishTime": "2022-11-24T15:46:45Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

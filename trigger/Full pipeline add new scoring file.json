@@ -1,0 +1,26 @@
+{
+	"name": "Full pipeline add new scoring file",
+	"properties": {
+		"description": "Runs the pipeline when a scoring file is uploaded",
+		"annotations": [],
+		"runtimeState": "Started",
+		"pipelines": [
+			{
+				"pipelineReference": {
+					"referenceName": "Full Pipeline",
+					"type": "PipelineReference"
+				}
+			}
+		],
+		"type": "BlobEventsTrigger",
+		"typeProperties": {
+			"blobPathBeginsWith": "/test/blobs/Pafos_Model/Scoring_Data/Scoring_data_raw",
+			"blobPathEndsWith": ".txt",
+			"ignoreEmptyBlobs": true,
+			"scope": "/subscriptions/1cf5d7b4-d197-4f43-b02e-63cf3c8254da/resourceGroups/Analytics-RG/providers/Microsoft.Storage/storageAccounts/dlinternal",
+			"events": [
+				"Microsoft.Storage.BlobCreated"
+			]
+		}
+	}
+}

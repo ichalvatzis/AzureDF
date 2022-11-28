@@ -1,0 +1,86 @@
+{
+	"name": "Scoring_data_transformed",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "DLinternal",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "DelimitedText",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"fileName": "Scoring_data_transformed.csv",
+				"folderPath": "Pafos_Model/Scoring_Data",
+				"fileSystem": "test"
+			},
+			"columnDelimiter": "\t",
+			"escapeChar": "\\",
+			"firstRowAsHeader": true,
+			"quoteChar": "\""
+		},
+		"schema": [
+			{
+				"name": "Loyalty_PointBalance_Range",
+				"type": "String"
+			},
+			{
+				"name": "Gender",
+				"type": "String"
+			},
+			{
+				"name": "AgeRange",
+				"type": "String"
+			},
+			{
+				"name": "HasEmail",
+				"type": "String"
+			},
+			{
+				"name": "_5_DHMOS_Desc_EN",
+				"type": "String"
+			},
+			{
+				"name": "Children_Held",
+				"type": "String"
+			},
+			{
+				"name": "RFM",
+				"type": "String"
+			},
+			{
+				"name": "F_Rank_24M",
+				"type": "String"
+			},
+			{
+				"name": "Activity_History_String_4S",
+				"type": "String"
+			},
+			{
+				"name": "CIFs_Spending_14_12M",
+				"type": "String"
+			},
+			{
+				"name": "CIFs_Spending_95_12M",
+				"type": "String"
+			},
+			{
+				"name": "CIFs_Spending_96_12M",
+				"type": "String"
+			},
+			{
+				"name": "CIFs_Spending_07_24M",
+				"type": "String"
+			},
+			{
+				"name": "Spending_Customer_Status",
+				"type": "String"
+			},
+			{
+				"name": "CIFs_Spending_09_24M",
+				"type": "String"
+			}
+		]
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

@@ -1,0 +1,17 @@
+{
+	"name": "InvoiceLinesJuly",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "Databricks_SQL",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [],
+		"typeProperties": {
+			"schema": "Clients",
+			"table": "InvoiceLinesJuly"
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

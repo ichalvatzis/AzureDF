@@ -1,0 +1,2131 @@
+{
+	"name": "Full Pipeline",
+	"properties": {
+		"activities": [
+			{
+				"name": "Import Scoring Data",
+				"type": "ExecuteDataFlow",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"dataflow": {
+						"referenceName": "Import Scoring Data",
+						"type": "DataFlowReference"
+					},
+					"compute": {
+						"coreCount": 8,
+						"computeType": "General"
+					},
+					"traceLevel": "Fine"
+				}
+			},
+			{
+				"name": "Score transformed data",
+				"type": "DatabricksNotebook",
+				"dependsOn": [
+					{
+						"activity": "Import Scoring Data",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					},
+					{
+						"activity": "Train model on transformed data",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebookPath": "/Shared/Demos/Pafos_Score"
+				},
+				"linkedServiceName": {
+					"referenceName": "DBinternal",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "Copy scored data to SQL db",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "Score transformed data",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "DelimitedTextSource",
+						"storeSettings": {
+							"type": "AzureBlobFSReadSettings",
+							"recursive": true,
+							"enablePartitionDiscovery": false
+						},
+						"formatSettings": {
+							"type": "DelimitedTextReadSettings"
+						}
+					},
+					"sink": {
+						"type": "AzureSqlSink",
+						"writeBehavior": "upsert",
+						"upsertSettings": {
+							"useTempDB": true,
+							"keys": [
+								"CustomerID"
+							]
+						},
+						"sqlWriterUseTableLock": false,
+						"tableOption": "autoCreate",
+						"disableMetricsCollection": false
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"mappings": [
+							{
+								"source": {
+									"name": "CustomerID",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "CustomerID",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "CIFs_Spending_09_24M",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "CIFs_Spending_09_24M",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "CIFs_Spending_07_24M",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "CIFs_Spending_07_24M",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "CIFs_Spending_14_12M",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "CIFs_Spending_14_12M",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "CIFs_Spending_95_12M",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "CIFs_Spending_95_12M",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "CIFs_Spending_96_12M",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "CIFs_Spending_96_12M",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "Activity_History_String_4S",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "Activity_History_String_4S",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "RFM",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "RFM",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "Loyalty_PointBalance_Range",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "Loyalty_PointBalance_Range",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "F_Rank_24M",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "F_Rank_24M",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "Spending_Customer_Status",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "Spending_Customer_Status",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "_5_DHMOS_Desc_EN",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "_5_DHMOS_Desc_EN",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "HasEmail",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "HasEmail",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "AgeRange",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "AgeRange",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "Gender",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "Gender",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "Children_Held",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "Children_Held",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "Responders_Lemesos_est",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "Responders_Lemesos_est",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "ventile",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "ventile",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							}
+						],
+						"typeConversion": true,
+						"typeConversionSettings": {
+							"allowDataTruncation": true,
+							"treatBooleanAsNumber": false
+						}
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "Scored_data",
+						"type": "DatasetReference"
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "Databricks_SQL_Pafos_scored",
+						"type": "DatasetReference"
+					}
+				]
+			},
+			{
+				"name": "Create SQL table with training data",
+				"type": "Copy",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "DelimitedTextSource",
+						"storeSettings": {
+							"type": "AzureBlobFSReadSettings",
+							"recursive": true,
+							"enablePartitionDiscovery": false
+						},
+						"formatSettings": {
+							"type": "DelimitedTextReadSettings"
+						}
+					},
+					"sink": {
+						"type": "AzureSqlSink",
+						"writeBehavior": "upsert",
+						"upsertSettings": {
+							"useTempDB": true,
+							"keys": [
+								"CustomerId"
+							]
+						},
+						"sqlWriterUseTableLock": false,
+						"tableOption": "autoCreate",
+						"disableMetricsCollection": false
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"mappings": [
+							{
+								"source": {
+									"name": "CustomerId",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "CustomerId",
+									"type": "String",
+									"physicalType": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "Loyalty_PointBalance_Range",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "Loyalty_PointBalance_Range",
+									"type": "String",
+									"physicalType": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "Loyalty_Registration_Year",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "Loyalty_Registration_Year",
+									"type": "String",
+									"physicalType": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "Loyalty_Preferred_Store",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "Loyalty_Preferred_Store",
+									"type": "String",
+									"physicalType": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "Customer_Random_Digit",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "Customer_Random_Digit",
+									"type": "String",
+									"physicalType": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "Customer_Random_Digit2",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "Customer_Random_Digit2",
+									"type": "String",
+									"physicalType": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "Gender",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "Gender",
+									"type": "String",
+									"physicalType": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "AgeRange",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "AgeRange",
+									"type": "String",
+									"physicalType": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "AgeRange2",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "AgeRange2",
+									"type": "String",
+									"physicalType": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "HasEmail",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "HasEmail",
+									"type": "String",
+									"physicalType": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "Closest_Distance_range",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "Closest_Distance_range",
+									"type": "String",
+									"physicalType": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "Postcode",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "Postcode",
+									"type": "String",
+									"physicalType": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "_4_PERIFER_ENOTHTA_Desc_EN",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "_4_PERIFER_ENOTHTA_Desc_EN",
+									"type": "String",
+									"physicalType": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "_5_DHMOS_Desc_EN",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "_5_DHMOS_Desc_EN",
+									"type": "String",
+									"physicalType": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "Children_Held",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "Children_Held",
+									"type": "String",
+									"physicalType": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "RFM",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "RFM",
+									"type": "String",
+									"physicalType": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "R_Rank_24M",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "R_Rank_24M",
+									"type": "String",
+									"physicalType": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "F_Rank_24M",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "F_Rank_24M",
+									"type": "String",
+									"physicalType": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "M_Rank_24M",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "M_Rank_24M",
+									"type": "String",
+									"physicalType": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "Activity_History_String_8Q",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "Activity_History_String_8Q",
+									"type": "String",
+									"physicalType": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "Activity_History_String_4S",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "Activity_History_String_4S",
+									"type": "String",
+									"physicalType": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "Spending_Customer_Status",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "Spending_Customer_Status",
+									"type": "String",
+									"physicalType": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "Activity_History_String_3M",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "Activity_History_String_3M",
+									"type": "String",
+									"physicalType": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "CIFs_Spending_12M",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "CIFs_Spending_12M",
+									"type": "String",
+									"physicalType": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "CIFs_Spending_01_12M",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "CIFs_Spending_01_12M",
+									"type": "String",
+									"physicalType": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "CIFs_Spending_02_12M",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "CIFs_Spending_02_12M",
+									"type": "String",
+									"physicalType": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "CIFs_Spending_03_12M",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "CIFs_Spending_03_12M",
+									"type": "String",
+									"physicalType": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "CIFs_Spending_04_12M",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "CIFs_Spending_04_12M",
+									"type": "String",
+									"physicalType": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "CIFs_Spending_05_12M",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "CIFs_Spending_05_12M",
+									"type": "String",
+									"physicalType": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "CIFs_Spending_06_12M",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "CIFs_Spending_06_12M",
+									"type": "String",
+									"physicalType": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "CIFs_Spending_07_12M",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "CIFs_Spending_07_12M",
+									"type": "String",
+									"physicalType": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "CIFs_Spending_08_12M",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "CIFs_Spending_08_12M",
+									"type": "String",
+									"physicalType": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "CIFs_Spending_09_12M",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "CIFs_Spending_09_12M",
+									"type": "String",
+									"physicalType": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "CIFs_Spending_10_12M",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "CIFs_Spending_10_12M",
+									"type": "String",
+									"physicalType": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "CIFs_Spending_11_12M",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "CIFs_Spending_11_12M",
+									"type": "String",
+									"physicalType": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "CIFs_Spending_12_12M",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "CIFs_Spending_12_12M",
+									"type": "String",
+									"physicalType": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "CIFs_Spending_13_12M",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "CIFs_Spending_13_12M",
+									"type": "String",
+									"physicalType": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "CIFs_Spending_14_12M",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "CIFs_Spending_14_12M",
+									"type": "String",
+									"physicalType": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "CIFs_Spending_15_12M",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "CIFs_Spending_15_12M",
+									"type": "String",
+									"physicalType": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "CIFs_Spending_16_12M",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "CIFs_Spending_16_12M",
+									"type": "String",
+									"physicalType": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "CIFs_Spending_17_12M",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "CIFs_Spending_17_12M",
+									"type": "String",
+									"physicalType": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "CIFs_Spending_18_12M",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "CIFs_Spending_18_12M",
+									"type": "String",
+									"physicalType": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "CIFs_Spending_19_12M",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "CIFs_Spending_19_12M",
+									"type": "String",
+									"physicalType": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "CIFs_Spending_20_12M",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "CIFs_Spending_20_12M",
+									"type": "String",
+									"physicalType": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "CIFs_Spending_92_12M",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "CIFs_Spending_92_12M",
+									"type": "String",
+									"physicalType": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "CIFs_Spending_94_12M",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "CIFs_Spending_94_12M",
+									"type": "String",
+									"physicalType": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "CIFs_Spending_95_12M",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "CIFs_Spending_95_12M",
+									"type": "String",
+									"physicalType": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "CIFs_Spending_96_12M",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "CIFs_Spending_96_12M",
+									"type": "String",
+									"physicalType": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "CIFs_Spending_24M",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "CIFs_Spending_24M",
+									"type": "String",
+									"physicalType": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "CIFs_Spending_01_24M",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "CIFs_Spending_01_24M",
+									"type": "String",
+									"physicalType": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "CIFs_Spending_02_24M",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "CIFs_Spending_02_24M",
+									"type": "String",
+									"physicalType": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "CIFs_Spending_03_24M",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "CIFs_Spending_03_24M",
+									"type": "String",
+									"physicalType": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "CIFs_Spending_04_24M",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "CIFs_Spending_04_24M",
+									"type": "String",
+									"physicalType": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "CIFs_Spending_05_24M",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "CIFs_Spending_05_24M",
+									"type": "String",
+									"physicalType": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "CIFs_Spending_06_24M",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "CIFs_Spending_06_24M",
+									"type": "String",
+									"physicalType": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "CIFs_Spending_07_24M",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "CIFs_Spending_07_24M",
+									"type": "String",
+									"physicalType": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "CIFs_Spending_08_24M",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "CIFs_Spending_08_24M",
+									"type": "String",
+									"physicalType": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "CIFs_Spending_09_24M",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "CIFs_Spending_09_24M",
+									"type": "String",
+									"physicalType": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "CIFs_Spending_10_24M",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "CIFs_Spending_10_24M",
+									"type": "String",
+									"physicalType": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "CIFs_Spending_11_24M",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "CIFs_Spending_11_24M",
+									"type": "String",
+									"physicalType": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "CIFs_Spending_12_24M",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "CIFs_Spending_12_24M",
+									"type": "String",
+									"physicalType": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "CIFs_Spending_13_24M",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "CIFs_Spending_13_24M",
+									"type": "String",
+									"physicalType": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "CIFs_Spending_14_24M",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "CIFs_Spending_14_24M",
+									"type": "String",
+									"physicalType": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "CIFs_Spending_15_24M",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "CIFs_Spending_15_24M",
+									"type": "String",
+									"physicalType": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "CIFs_Spending_16_24M",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "CIFs_Spending_16_24M",
+									"type": "String",
+									"physicalType": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "CIFs_Spending_17_24M",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "CIFs_Spending_17_24M",
+									"type": "String",
+									"physicalType": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "CIFs_Spending_18_24M",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "CIFs_Spending_18_24M",
+									"type": "String",
+									"physicalType": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "CIFs_Spending_19_24M",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "CIFs_Spending_19_24M",
+									"type": "String",
+									"physicalType": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "CIFs_Spending_20_24M",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "CIFs_Spending_20_24M",
+									"type": "String",
+									"physicalType": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "CIFs_Spending_92_24M",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "CIFs_Spending_92_24M",
+									"type": "String",
+									"physicalType": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "CIFs_Spending_96_24M",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "CIFs_Spending_96_24M",
+									"type": "String",
+									"physicalType": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "_5_PurPower_per_Household_Index",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "_5_PurPower_per_Household_Index",
+									"type": "String",
+									"physicalType": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "_2_DIOIKHSEIS_Desc_EN",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "_2_DIOIKHSEIS_Desc_EN",
+									"type": "String",
+									"physicalType": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "_3_PERIFERIA_Desc_EN",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "_3_PERIFERIA_Desc_EN",
+									"type": "String",
+									"physicalType": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "R_Rank_prior24M",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "R_Rank_prior24M",
+									"type": "String",
+									"physicalType": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "F_Rank_prior24M",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "F_Rank_prior24M",
+									"type": "String",
+									"physicalType": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "M_Rank_prior24M",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "M_Rank_prior24M",
+									"type": "String",
+									"physicalType": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "rfm_prior24M",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "rfm_prior24M",
+									"type": "String",
+									"physicalType": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "Children_Held2",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "Children_Held2",
+									"type": "String",
+									"physicalType": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "Nomos",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "Nomos",
+									"type": "String",
+									"physicalType": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "Description_Mixed",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "Description_Mixed",
+									"type": "String",
+									"physicalType": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "Sem_on_Books",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "Sem_on_Books",
+									"type": "String",
+									"physicalType": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "Invoice_txns_24M_range",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "Invoice_txns_24M_range",
+									"type": "String",
+									"physicalType": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "Invoice_txns_01_24M_range",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "Invoice_txns_01_24M_range",
+									"type": "String",
+									"physicalType": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "Invoice_txns_02_24M_range",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "Invoice_txns_02_24M_range",
+									"type": "String",
+									"physicalType": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "Invoice_txns_03_24M_range",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "Invoice_txns_03_24M_range",
+									"type": "String",
+									"physicalType": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "Invoice_txns_04_24M_range",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "Invoice_txns_04_24M_range",
+									"type": "String",
+									"physicalType": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "Invoice_txns_05_24M_range",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "Invoice_txns_05_24M_range",
+									"type": "String",
+									"physicalType": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "Invoice_txns_06_24M_range",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "Invoice_txns_06_24M_range",
+									"type": "String",
+									"physicalType": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "Invoice_txns_07_24M_range",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "Invoice_txns_07_24M_range",
+									"type": "String",
+									"physicalType": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "Invoice_txns_08_24M_range",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "Invoice_txns_08_24M_range",
+									"type": "String",
+									"physicalType": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "Invoice_txns_09_24M_range",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "Invoice_txns_09_24M_range",
+									"type": "String",
+									"physicalType": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "Invoice_txns_10_24M_range",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "Invoice_txns_10_24M_range",
+									"type": "String",
+									"physicalType": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "Invoice_txns_11_24M_range",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "Invoice_txns_11_24M_range",
+									"type": "String",
+									"physicalType": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "Invoice_txns_12_24M_range",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "Invoice_txns_12_24M_range",
+									"type": "String",
+									"physicalType": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "Invoice_txns_13_24M_range",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "Invoice_txns_13_24M_range",
+									"type": "String",
+									"physicalType": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "Invoice_txns_14_24M_range",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "Invoice_txns_14_24M_range",
+									"type": "String",
+									"physicalType": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "Invoice_txns_15_24M_range",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "Invoice_txns_15_24M_range",
+									"type": "String",
+									"physicalType": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "Invoice_txns_16_24M_range",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "Invoice_txns_16_24M_range",
+									"type": "String",
+									"physicalType": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "Invoice_txns_17_24M_range",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "Invoice_txns_17_24M_range",
+									"type": "String",
+									"physicalType": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "Invoice_txns_18_24M_range",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "Invoice_txns_18_24M_range",
+									"type": "String",
+									"physicalType": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "Invoice_txns_19_24M_range",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "Invoice_txns_19_24M_range",
+									"type": "String",
+									"physicalType": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "Invoice_txns_20_24M_range",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "Invoice_txns_20_24M_range",
+									"type": "String",
+									"physicalType": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "Invoice_txns_92_24M_range",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "Invoice_txns_92_24M_range",
+									"type": "String",
+									"physicalType": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "Invoice_txns_96_24M_range",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "Invoice_txns_96_24M_range",
+									"type": "String",
+									"physicalType": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "Invoice_txns_12M_range",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "Invoice_txns_12M_range",
+									"type": "String",
+									"physicalType": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "Invoice_txns_01_12M_range",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "Invoice_txns_01_12M_range",
+									"type": "String",
+									"physicalType": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "Invoice_txns_02_12M_range",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "Invoice_txns_02_12M_range",
+									"type": "String",
+									"physicalType": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "Invoice_txns_03_12M_range",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "Invoice_txns_03_12M_range",
+									"type": "String",
+									"physicalType": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "Invoice_txns_04_12M_range",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "Invoice_txns_04_12M_range",
+									"type": "String",
+									"physicalType": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "Invoice_txns_05_12M_range",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "Invoice_txns_05_12M_range",
+									"type": "String",
+									"physicalType": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "Invoice_txns_06_12M_range",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "Invoice_txns_06_12M_range",
+									"type": "String",
+									"physicalType": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "Invoice_txns_07_12M_range",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "Invoice_txns_07_12M_range",
+									"type": "String",
+									"physicalType": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "Invoice_txns_08_12M_range",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "Invoice_txns_08_12M_range",
+									"type": "String",
+									"physicalType": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "Invoice_txns_09_12M_range",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "Invoice_txns_09_12M_range",
+									"type": "String",
+									"physicalType": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "Invoice_txns_10_12M_range",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "Invoice_txns_10_12M_range",
+									"type": "String",
+									"physicalType": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "Invoice_txns_11_12M_range",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "Invoice_txns_11_12M_range",
+									"type": "String",
+									"physicalType": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "Invoice_txns_12_12M_range",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "Invoice_txns_12_12M_range",
+									"type": "String",
+									"physicalType": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "Invoice_txns_13_12M_range",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "Invoice_txns_13_12M_range",
+									"type": "String",
+									"physicalType": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "Invoice_txns_14_12M_range",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "Invoice_txns_14_12M_range",
+									"type": "String",
+									"physicalType": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "Invoice_txns_15_12M_range",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "Invoice_txns_15_12M_range",
+									"type": "String",
+									"physicalType": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "Invoice_txns_16_12M_range",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "Invoice_txns_16_12M_range",
+									"type": "String",
+									"physicalType": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "Invoice_txns_17_12M_range",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "Invoice_txns_17_12M_range",
+									"type": "String",
+									"physicalType": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "Invoice_txns_18_12M_range",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "Invoice_txns_18_12M_range",
+									"type": "String",
+									"physicalType": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "Invoice_txns_19_12M_range",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "Invoice_txns_19_12M_range",
+									"type": "String",
+									"physicalType": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "Invoice_txns_20_12M_range",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "Invoice_txns_20_12M_range",
+									"type": "String",
+									"physicalType": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "Invoice_txns_92_12M_range",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "Invoice_txns_92_12M_range",
+									"type": "String",
+									"physicalType": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "Invoice_txns_96_12M_range",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "Invoice_txns_96_12M_range",
+									"type": "String",
+									"physicalType": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "Points_Redeemed_24M_range",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "Points_Redeemed_24M_range",
+									"type": "String",
+									"physicalType": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "Points_Earned_24M_range",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "Points_Earned_24M_range",
+									"type": "String",
+									"physicalType": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "Points_Earned_ever_range",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "Points_Earned_ever_range",
+									"type": "String",
+									"physicalType": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "Invoice_Amount_24M_range",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "Invoice_Amount_24M_range",
+									"type": "String",
+									"physicalType": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "Invoice_SDI_24M",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "Invoice_SDI_24M",
+									"type": "String",
+									"physicalType": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "Invoice_SDI_12M",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "Invoice_SDI_12M",
+									"type": "String",
+									"physicalType": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "CIFs",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "CIFs",
+									"type": "String",
+									"physicalType": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "Responders",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "Responders",
+									"type": "String",
+									"physicalType": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "Responders_Lemesos",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "Responders_Lemesos",
+									"type": "String",
+									"physicalType": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "n",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "n",
+									"type": "String",
+									"physicalType": "String"
+								}
+							}
+						],
+						"typeConversion": true,
+						"typeConversionSettings": {
+							"allowDataTruncation": true,
+							"treatBooleanAsNumber": false
+						}
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "Training_data_raw",
+						"type": "DatasetReference"
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "Databricks_SQL_dbo_Pafos_training_raw",
+						"type": "DatasetReference"
+					}
+				]
+			},
+			{
+				"name": "Import training data from SQL table",
+				"type": "ExecuteDataFlow",
+				"dependsOn": [
+					{
+						"activity": "Create SQL table with training data",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"dataflow": {
+						"referenceName": "Import Training data",
+						"type": "DataFlowReference"
+					},
+					"compute": {
+						"coreCount": 8,
+						"computeType": "General"
+					},
+					"traceLevel": "Fine"
+				}
+			},
+			{
+				"name": "Train model on transformed data",
+				"type": "DatabricksNotebook",
+				"dependsOn": [
+					{
+						"activity": "Import training data from SQL table",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebookPath": "/Shared/Demos/Pafos_Train"
+				},
+				"linkedServiceName": {
+					"referenceName": "DBinternal",
+					"type": "LinkedServiceReference"
+				}
+			}
+		],
+		"folder": {
+			"name": "Sample Pipeline with Databricks"
+		},
+		"annotations": [],
+		"lastPublishTime": "2022-11-23T14:38:39Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

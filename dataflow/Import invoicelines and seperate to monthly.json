@@ -1,0 +1,102 @@
+{
+	"name": "Import invoicelines and seperate to monthly",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "Invoicelines_Info_GR_Aug22",
+						"type": "DatasetReference"
+					},
+					"name": "InvoicelinesInfoGRAug22"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "InvoiceLines",
+						"type": "DatasetReference"
+					},
+					"name": "InvoicesLinesJune"
+				},
+				{
+					"dataset": {
+						"referenceName": "InvoiceLinesJuly",
+						"type": "DatasetReference"
+					},
+					"name": "InvoiceLinesJuly"
+				},
+				{
+					"dataset": {
+						"referenceName": "InvoiceLinesAugust",
+						"type": "DatasetReference"
+					},
+					"name": "InvoiceLinesAugust"
+				}
+			],
+			"transformations": [
+				{
+					"name": "SplitonTransactionMonth"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          InvoiceId as integer,",
+				"          CustomerId as integer,",
+				"          ProductHFB_Code as short,",
+				"          ProductPA_Code as short,",
+				"          ProductDescription as string,",
+				"          ProductPA as string,",
+				"          ProductHFB as string,",
+				"          ProductId as integer,",
+				"          ProductNumber as integer,",
+				"          ProductRangeArea as string,",
+				"          ProductRangeArea_Code as string,",
+				"          Invoice_Amount as double,",
+				"          Invoice_items as short,",
+				"          Transaction_Date as timestamp,",
+				"          Transaction_Month as integer,",
+				"          HasRedeem as boolean",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false) ~> InvoicelinesInfoGRAug22",
+				"InvoicelinesInfoGRAug22 split(Transaction_Month==202206,",
+				"     Transaction_Month==202207,",
+				"     Transaction_Month==202208,",
+				"     disjoint: false) ~> SplitonTransactionMonth@(InvoiceLinesJune, InvoiceLinesJuly, InvoiceLinesAugust, discard)",
+				"SplitonTransactionMonth@InvoiceLinesJune sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:false,",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError') ~> InvoicesLinesJune",
+				"SplitonTransactionMonth@InvoiceLinesJuly sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:false,",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError') ~> InvoiceLinesJuly",
+				"SplitonTransactionMonth@InvoiceLinesAugust sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:false,",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError') ~> InvoiceLinesAugust"
+			]
+		}
+	}
+}

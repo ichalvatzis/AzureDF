@@ -1,0 +1,17 @@
+{
+	"name": "Databricks_SQL_dbo_bank_transactions_base",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "Databricks_SQL",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [],
+		"typeProperties": {
+			"schema": "dbo",
+			"table": "bank_transactions_base"
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

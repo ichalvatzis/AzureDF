@@ -1,0 +1,129 @@
+{
+	"name": "Create bank transactions tables",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "Excel_Bank_Transactions_Jan",
+						"type": "DatasetReference"
+					},
+					"name": "BankTransactionsJan"
+				},
+				{
+					"dataset": {
+						"referenceName": "Excel_Bank_Transactions_Feb",
+						"type": "DatasetReference"
+					},
+					"name": "BankTransactionsFeb"
+				},
+				{
+					"dataset": {
+						"referenceName": "Excel_Bank_Transactions_March",
+						"type": "DatasetReference"
+					},
+					"name": "BankTransactionsMar"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "Databricks_SQL_dbo_bank_transactions_base",
+						"type": "DatasetReference"
+					},
+					"name": "BankTransactionsBase"
+				},
+				{
+					"dataset": {
+						"referenceName": "Databricks_SQL_dbo_bank_transactions_feb",
+						"type": "DatasetReference"
+					},
+					"name": "BankTransactionsFebSink"
+				},
+				{
+					"dataset": {
+						"referenceName": "Databricks_SQL_dbo_bank_transactions_mar",
+						"type": "DatasetReference"
+					},
+					"name": "BankTransactionsMarNew"
+				}
+			],
+			"transformations": [],
+			"scriptLines": [
+				"source(output(",
+				"          {Account No} as string,",
+				"          DATE as string,",
+				"          {TRANSACTION DETAILS} as string,",
+				"          {CHQ.NO.} as string,",
+				"          {VALUE DATE} as string,",
+				"          {WITHDRAWAL AMT} as string,",
+				"          {DEPOSIT AMT} as string,",
+				"          {BALANCE AMT} as string,",
+				"          {.} as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false) ~> BankTransactionsJan",
+				"source(output(",
+				"          {Account No} as string,",
+				"          DATE as string,",
+				"          {TRANSACTION DETAILS} as string,",
+				"          {CHQ.NO.} as string,",
+				"          {VALUE DATE} as string,",
+				"          {WITHDRAWAL AMT} as string,",
+				"          {DEPOSIT AMT} as string,",
+				"          {BALANCE AMT} as string,",
+				"          {.} as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false) ~> BankTransactionsFeb",
+				"source(output(",
+				"          {Account No} as string,",
+				"          DATE as string,",
+				"          {TRANSACTION DETAILS} as string,",
+				"          {CHQ.NO.} as string,",
+				"          {VALUE DATE} as string,",
+				"          {WITHDRAWAL AMT} as string,",
+				"          {DEPOSIT AMT} as string,",
+				"          {BALANCE AMT} as string,",
+				"          {.} as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false) ~> BankTransactionsMar",
+				"BankTransactionsJan sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:false,",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError') ~> BankTransactionsBase",
+				"BankTransactionsFeb sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:false,",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError') ~> BankTransactionsFebSink",
+				"BankTransactionsMar sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:false,",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError') ~> BankTransactionsMarNew"
+			]
+		}
+	}
+}

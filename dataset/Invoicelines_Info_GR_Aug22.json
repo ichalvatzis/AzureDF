@@ -1,0 +1,90 @@
+{
+	"name": "Invoicelines_Info_GR_Aug22",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "DLinternal",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "DelimitedText",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"fileName": "Invoicelines_Info_GR_Aug22.txt",
+				"folderPath": "Trigger_marketing/Input",
+				"fileSystem": "ikea"
+			},
+			"columnDelimiter": "\t",
+			"escapeChar": "\\",
+			"firstRowAsHeader": true,
+			"quoteChar": "\""
+		},
+		"schema": [
+			{
+				"name": "InvoiceId",
+				"type": "String"
+			},
+			{
+				"name": "CustomerId",
+				"type": "String"
+			},
+			{
+				"name": "ProductHFB_Code",
+				"type": "String"
+			},
+			{
+				"name": "ProductPA_Code",
+				"type": "String"
+			},
+			{
+				"name": "ProductDescription",
+				"type": "String"
+			},
+			{
+				"name": "ProductPA",
+				"type": "String"
+			},
+			{
+				"name": "ProductHFB",
+				"type": "String"
+			},
+			{
+				"name": "ProductId",
+				"type": "String"
+			},
+			{
+				"name": "ProductNumber",
+				"type": "String"
+			},
+			{
+				"name": "ProductRangeArea",
+				"type": "String"
+			},
+			{
+				"name": "ProductRangeArea_Code",
+				"type": "String"
+			},
+			{
+				"name": "Invoice_Amount",
+				"type": "String"
+			},
+			{
+				"name": "Invoice_items",
+				"type": "String"
+			},
+			{
+				"name": "Transaction_Date",
+				"type": "String"
+			},
+			{
+				"name": "Transaction_Month",
+				"type": "String"
+			},
+			{
+				"name": "HasRedeem",
+				"type": "String"
+			}
+		]
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

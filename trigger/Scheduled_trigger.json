@@ -1,0 +1,25 @@
+{
+	"name": "Scheduled_trigger",
+	"properties": {
+		"description": "Trigger runs on specific date and recurs every 1 month",
+		"annotations": [],
+		"runtimeState": "Started",
+		"pipelines": [
+			{
+				"pipelineReference": {
+					"referenceName": "Full Pipeline",
+					"type": "PipelineReference"
+				}
+			}
+		],
+		"type": "ScheduleTrigger",
+		"typeProperties": {
+			"recurrence": {
+				"frequency": "Month",
+				"interval": 1,
+				"startTime": "2022-11-24T09:00:00",
+				"timeZone": "GTB Standard Time"
+			}
+		}
+	}
+}

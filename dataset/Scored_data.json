@@ -1,0 +1,98 @@
+{
+	"name": "Scored_data",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "DLinternal",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "DelimitedText",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"fileName": "Scored_dataset(Responders_Lemesos).csv",
+				"folderPath": "Pafos_Model/Scored_Data",
+				"fileSystem": "test"
+			},
+			"columnDelimiter": ",",
+			"escapeChar": "\\",
+			"firstRowAsHeader": true,
+			"quoteChar": "\""
+		},
+		"schema": [
+			{
+				"name": "CustomerID",
+				"type": "String"
+			},
+			{
+				"name": "CIFs_Spending_09_24M",
+				"type": "String"
+			},
+			{
+				"name": "CIFs_Spending_07_24M",
+				"type": "String"
+			},
+			{
+				"name": "CIFs_Spending_14_12M",
+				"type": "String"
+			},
+			{
+				"name": "CIFs_Spending_95_12M",
+				"type": "String"
+			},
+			{
+				"name": "CIFs_Spending_96_12M",
+				"type": "String"
+			},
+			{
+				"name": "Activity_History_String_4S",
+				"type": "String"
+			},
+			{
+				"name": "RFM",
+				"type": "String"
+			},
+			{
+				"name": "Loyalty_PointBalance_Range",
+				"type": "String"
+			},
+			{
+				"name": "F_Rank_24M",
+				"type": "String"
+			},
+			{
+				"name": "Spending_Customer_Status",
+				"type": "String"
+			},
+			{
+				"name": "_5_DHMOS_Desc_EN",
+				"type": "String"
+			},
+			{
+				"name": "HasEmail",
+				"type": "String"
+			},
+			{
+				"name": "AgeRange",
+				"type": "String"
+			},
+			{
+				"name": "Gender",
+				"type": "String"
+			},
+			{
+				"name": "Children_Held",
+				"type": "String"
+			},
+			{
+				"name": "Responders_Lemesos_est",
+				"type": "String"
+			},
+			{
+				"name": "ventile",
+				"type": "String"
+			}
+		]
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

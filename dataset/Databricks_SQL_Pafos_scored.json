@@ -1,0 +1,17 @@
+{
+	"name": "Databricks_SQL_Pafos_scored",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "Databricks_SQL",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [],
+		"typeProperties": {
+			"schema": "dbo",
+			"table": "Pafos_scored"
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

@@ -1,0 +1,290 @@
+{
+	"name": "Check latest date and load incrementally",
+	"properties": {
+		"activities": [
+			{
+				"name": "Lookup max date on Destination table",
+				"type": "Lookup",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "AzureSqlSource",
+						"sqlReaderQuery": {
+							"value": "Select max(DATE) \nas Destination_max_date from \n@{pipeline().parameters.data_sink_table}",
+							"type": "Expression"
+						},
+						"queryTimeout": "02:00:00",
+						"partitionOption": "None"
+					},
+					"dataset": {
+						"referenceName": "SQL_sink",
+						"type": "DatasetReference",
+						"parameters": {
+							"sink_table": {
+								"value": "@pipeline().parameters.data_sink_table",
+								"type": "Expression"
+							}
+						}
+					},
+					"firstRowOnly": true
+				}
+			},
+			{
+				"name": "Lookup max date on Source table",
+				"description": "",
+				"type": "Lookup",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "AzureSqlSource",
+						"sqlReaderQuery": {
+							"value": "Select max(DATE) \nas Source_max_date from \n@{pipeline().parameters.data_source_table}",
+							"type": "Expression"
+						},
+						"queryTimeout": "02:00:00",
+						"partitionOption": "None"
+					},
+					"dataset": {
+						"referenceName": "SQL_source",
+						"type": "DatasetReference",
+						"parameters": {
+							"source_table": {
+								"value": "@pipeline().parameters.data_source_table",
+								"type": "Expression"
+							}
+						}
+					},
+					"firstRowOnly": true
+				}
+			},
+			{
+				"name": "Incremental extract",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "Lookup max date on Destination table",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					},
+					{
+						"activity": "Lookup max date on Source table",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "AzureSqlSource",
+						"sqlReaderQuery": {
+							"value": "Select * from @{pipeline().parameters.data_source_table}\nwhere DATE>\n'@{activity('Lookup max date on Destination table').output.firstrow.Destination_max_date}'\n",
+							"type": "Expression"
+						},
+						"queryTimeout": "02:00:00",
+						"partitionOption": "None"
+					},
+					"sink": {
+						"type": "AzureSqlSink",
+						"writeBehavior": "insert",
+						"sqlWriterUseTableLock": false,
+						"disableMetricsCollection": false
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"typeConversion": true,
+						"typeConversionSettings": {
+							"allowDataTruncation": true,
+							"treatBooleanAsNumber": false
+						}
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "SQL_source",
+						"type": "DatasetReference",
+						"parameters": {
+							"source_table": {
+								"value": "@pipeline().parameters.data_source_table",
+								"type": "Expression"
+							}
+						}
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "SQL_sink",
+						"type": "DatasetReference",
+						"parameters": {
+							"sink_table": {
+								"value": "@pipeline().parameters.data_sink_table",
+								"type": "Expression"
+							}
+						}
+					}
+				]
+			},
+			{
+				"name": "Lookup Control table",
+				"type": "Lookup",
+				"dependsOn": [
+					{
+						"activity": "If new entries are found",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "AzureSqlSource",
+						"queryTimeout": "02:00:00",
+						"partitionOption": "None"
+					},
+					"dataset": {
+						"referenceName": "Databricks_SQL_dbo_bank_control_table",
+						"type": "DatasetReference"
+					},
+					"firstRowOnly": false
+				}
+			},
+			{
+				"name": "If new entries are found",
+				"type": "IfCondition",
+				"dependsOn": [
+					{
+						"activity": "Incremental extract",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"expression": {
+						"value": "@greater(activity('Incremental extract').output.rowsCopied,0)",
+						"type": "Expression"
+					},
+					"ifFalseActivities": [
+						{
+							"name": "Do not update",
+							"type": "Wait",
+							"dependsOn": [],
+							"userProperties": [],
+							"typeProperties": {
+								"waitTimeInSeconds": 1
+							}
+						}
+					],
+					"ifTrueActivities": [
+						{
+							"name": "Update control table_copy1",
+							"type": "SqlServerStoredProcedure",
+							"dependsOn": [],
+							"policy": {
+								"timeout": "0.12:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"storedProcedureName": "[dbo].[usp_UpdateBankControlTable]",
+								"storedProcedureParameters": {
+									"DestinationTable": {
+										"value": {
+											"value": "@pipeline().parameters.data_sink_table",
+											"type": "Expression"
+										},
+										"type": "String"
+									},
+									"LastLoadDate": {
+										"value": {
+											"value": "@convertFromUtc(pipeline().TriggerTime,'GTB Standard Time')",
+											"type": "Expression"
+										},
+										"type": "DateTime"
+									},
+									"MaxDate": {
+										"value": {
+											"value": "@activity('Lookup max date on Source table').output.firstRow.Source_max_date",
+											"type": "Expression"
+										},
+										"type": "Datetime"
+									},
+									"SourceTable": {
+										"value": {
+											"value": "@pipeline().parameters.data_source_table",
+											"type": "Expression"
+										},
+										"type": "String"
+									},
+									"RowsCopied": {
+										"value": {
+											"value": "@activity('Incremental extract').output.rowsCopied",
+											"type": "Expression"
+										}
+									}
+								}
+							},
+							"linkedServiceName": {
+								"referenceName": "Databricks_SQL",
+								"type": "LinkedServiceReference"
+							}
+						}
+					]
+				}
+			}
+		],
+		"parameters": {
+			"data_source_table": {
+				"type": "string",
+				"defaultValue": "bank_transactions_mar"
+			},
+			"data_sink_table": {
+				"type": "string",
+				"defaultValue": "bank_transactions_base"
+			}
+		},
+		"folder": {
+			"name": "Incremental SQL update (Date)"
+		},
+		"annotations": [],
+		"lastPublishTime": "2022-11-28T15:42:35Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

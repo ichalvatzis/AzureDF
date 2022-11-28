@@ -1,0 +1,9 @@
+{
+	"name": "df-ld-internal",
+	"location": "northeurope",
+	"identity": {
+		"type": "SystemAssigned",
+		"principalId": "d940d25f-80a8-4aad-b24b-3fa3039a8974",
+		"tenantId": "41275461-5ad5-409b-9f59-5c007c51528e"
+	}
+}

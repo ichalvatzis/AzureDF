@@ -1,0 +1,38 @@
+{
+	"name": "Databricks_SQL_dbo_bank_control_table",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "Databricks_SQL",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [
+			{
+				"name": "DestinationTable",
+				"type": "varchar"
+			},
+			{
+				"name": "SourceTable",
+				"type": "varchar"
+			},
+			{
+				"name": "MaxDate",
+				"type": "datetime",
+				"precision": 23,
+				"scale": 3
+			},
+			{
+				"name": "LastLoadDate",
+				"type": "datetime",
+				"precision": 23,
+				"scale": 3
+			}
+		],
+		"typeProperties": {
+			"schema": "dbo",
+			"table": "bank_control_table"
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}
